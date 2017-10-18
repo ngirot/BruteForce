@@ -15,14 +15,10 @@ func main() {
 	}
 }
 
-var i = 0
 func displayCurrent(data string)  {
-	i++
-	//if(i%1000 == 0) {
-		fmt.Printf("Done: %d [%s]\n", i, data)
-	//}
+	fmt.Printf("Done: %s\n", data)
 }
 
 func testCurrent(data string) bool {
-	return Hash(data) == "2e7d2c03a9507ae265ecf5b5356885a53393a2029d241394997265a1a25aefc6"
+	return Hash(data) == "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
 }
