@@ -5,50 +5,53 @@ type status func(data string)
 
 var alphabet = []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"}
 
-func TestAllStrings(testFn tester, statusFn status) string {
+func TestAllStrings(test tester, notifyTesting status) string {
 	var wordSize int
 
 	for wordSize = 1; wordSize <= 3 ; wordSize++  {
 
-		var word = make([]int, wordSize, wordSize)
-		var allWordCompleted = false
+		var letters = make([]int, wordSize, wordSize)
+		var allWordsCompleted = false
 
-		for !allWordCompleted {
-			var x = convertWord(word[:])
+		for !allWordsCompleted {
+			var word = generateWord(letters[:])
 
-			statusFn(x)
-			if testFn(x) {
-				return x
+			notifyTesting(word)
+			if test(word) {
+				return word
 			}
 
-			allWordCompleted = incrementWord(word)
+			allWordsCompleted = updateToNextWord(letters)
 		}
 	}
 
 	return ""
 }
 
-func incrementWord(word []int) bool{
+func updateToNextWord(word []int) bool {
 	var overflow = true
 
-	var i int
+	var position int
 
-	for i = len(word) -1 ; i>=0 && overflow ; i--  {
-		var newValue = word[i] + 1
-		if newValue % len(alphabet) == 0 {
+	for position = len(word) -1 ; position >=0 && overflow ; position--  {
+		var newValue = word[position] + 1
+		if isOverflow(newValue) {
 			newValue = 0
 			overflow = true
 		} else {
 			overflow = false
 		}
 
-		word[i] = newValue
+		word[position] = newValue
 	}
 
 	return overflow
 }
+func isOverflow(newValue int) bool {
+	return newValue%len(alphabet) == 0
+}
 
-func convertWord(word []int) string {
+func generateWord(word []int) string {
 	var converted string
 
 	for _,letter := range word {
