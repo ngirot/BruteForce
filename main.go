@@ -12,6 +12,12 @@ func main() {
 	}
 
 	var hash = os.Args[1]
+	if hash == "--benchmark" {
+		var hasherBenchResult = BenchHasher()
+		fmt.Printf("One CPU hasher : %d h/s", hasherBenchResult)
+		os.Exit(0)
+	}
+
 
 	fmt.Printf("Start brute-forcing...\n")
 
