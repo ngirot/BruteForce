@@ -15,26 +15,11 @@ func main() {
 
 	fmt.Printf("Start brute-forcing...\n")
 
-	var result = TestAllStrings(testValue(hash), displayValue)
+	var result = Launch(hash)
 
 	if result != "" {
 		fmt.Printf("Found : %s\n", result)
 	} else {
 		fmt.Printf("Not found\n")
 	}
-}
-
-var parsed = 0
-func displayValue(data string)  {
-	parsed++
-	if(parsed%1000000==0) {
-		fmt.Printf("Done: %s\n", data)
-	}
-}
-
-func testValue(hash string) func(string) bool {
-	return func(data string) bool {
-		return Hash(data) == hash
-	}
-
 }
