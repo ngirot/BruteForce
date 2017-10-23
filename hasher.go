@@ -5,14 +5,16 @@ import (
 	"crypto/sha256"
 )
 
+var cachedHasher = sha256.New()
+
 func Hash(data string) string {
 	return format(binaryHash(convert(data)))
 }
 
 func binaryHash(data []byte) []byte {
-	var h = sha256.New()
-	h.Write([]byte(data))
-	return h.Sum(nil)
+	cachedHasher.Reset()
+	cachedHasher.Write([]byte(data))
+	return cachedHasher.Sum(nil)
 }
 
 func convert(s string) []byte {
