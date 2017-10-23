@@ -7,7 +7,7 @@ import (
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Fprintf(os.Stderr, "Usage: %s HASH", os.Args[0])
+		fmt.Fprintf(os.Stderr, "Usage: %s HASH\n", os.Args[0])
 		os.Exit(1)
 	}
 
