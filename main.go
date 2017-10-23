@@ -13,8 +13,8 @@ func main() {
 
 	var hash = os.Args[1]
 	if hash == "--benchmark" {
-		var hasherBenchResult = BenchHasher()
-		fmt.Printf("One CPU hasher : %d h/s", hasherBenchResult)
+		fmt.Printf("One CPU hasher : %d kh/s\n", BenchHasher()/1000)
+		fmt.Printf("One CPU word generator : %d kw/s\n", BenchBruter()/1000)
 		os.Exit(0)
 	}
 

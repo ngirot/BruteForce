@@ -20,3 +20,24 @@ func BenchHasher() int {
 
 	return int(math.Floor(hashTobench / timeInSeconds))
 }
+
+func BenchBruter() int {
+
+	var start = time.Now().UnixNano()
+	var counter = 1
+
+	TestAllStrings(func(data string) bool {
+		var isOk = counter >= hashTobench
+		counter++
+		return isOk
+	}, func(date string) {
+	})
+
+	var end = time.Now().UnixNano()
+	var timeInSeconds = float64(end - start) / 1000000000
+
+	return int(math.Floor(hashTobench / timeInSeconds))
+}
+
+
+
