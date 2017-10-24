@@ -3,24 +3,31 @@ package main
 import (
 	"encoding/hex"
 	"crypto/sha256"
+	"hash"
 )
 
-var cachedHasher = sha256.New()
-
-func Hash(data string) string {
-	return format(binaryHash(convert(data)))
+type Hasher struct {
+	cache hash.Hash
 }
 
-func binaryHash(data []byte) []byte {
-	cachedHasher.Reset()
-	cachedHasher.Write([]byte(data))
-	return cachedHasher.Sum(nil)
+func NewHasher() Hasher {
+	return Hasher{sha256.New()}
 }
 
-func convert(s string) []byte {
+func (h *Hasher) Hash(data string) string {
+	return h.format(h.binaryHash(h.convert(data)))
+}
+
+func (h *Hasher) binaryHash(data []byte) []byte {
+	h.cache.Reset()
+	h.cache.Write([]byte(data))
+	return h.cache.Sum(nil)
+}
+
+func (h *Hasher) convert(s string) []byte {
 	return []byte(s)
 }
 
-func format(data []byte) string {
+func (h *Hasher) format(data []byte) string {
 	return hex.EncodeToString(data)
 }

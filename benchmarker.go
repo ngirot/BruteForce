@@ -10,9 +10,10 @@ const hashTobench = 10*1000*1000
 func BenchHasher() int {
 
 	var start = time.Now().UnixNano()
+	var hasher = NewHasher()
 
 	for i:=0; i<hashTobench ; i++  {
-		Hash("1234567890")
+		hasher.Hash("1234567890")
 	}
 
 	var end = time.Now().UnixNano()
