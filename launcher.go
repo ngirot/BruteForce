@@ -1,8 +1,8 @@
 package main
 
-import(
-	"fmt"
+import (
 	"./hashs"
+	"fmt"
 )
 
 func Launch(hash string) string {
@@ -12,9 +12,9 @@ func Launch(hash string) string {
 var hasher = hashs.NewHasher()
 var parsed = 0
 
-func displayValue(data string)  {
+func displayValue(data string) {
 	parsed++
-	if(parsed%1000000==0) {
+	if parsed%1000000 == 0 {
 		fmt.Printf("Done: %s\n", data)
 	}
 }

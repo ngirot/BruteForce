@@ -18,7 +18,6 @@ func main() {
 		os.Exit(0)
 	}
 
-
 	fmt.Printf("Start brute-forcing...\n")
 
 	var result = Launch(hash)
