@@ -1,12 +1,15 @@
 package main
 
-import "fmt"
+import(
+	"fmt"
+	"./hashs"
+)
 
 func Launch(hash string) string {
 	return TestAllStrings(testValue(hash), displayValue)
 }
 
-var hasher = NewHasher()
+var hasher = hashs.NewHasher()
 var parsed = 0
 
 func displayValue(data string)  {

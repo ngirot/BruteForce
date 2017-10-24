@@ -1,10 +1,12 @@
 package main
 
+import "./words"
+
 type tester func(data string) bool
 type status func(data string)
 
 func TestAllStrings(test tester, notifyTesting status) string {
-	var worder = NewWorder()
+	var worder = words.NewWorder()
 
 	for {
 		var word = worder.Next()

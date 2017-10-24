@@ -3,6 +3,8 @@ package main
 import (
 	"time"
 	"math"
+	"./hashs"
+	"./words"
 )
 
 const hashTobench = 10*1000*1000
@@ -10,7 +12,7 @@ const hashTobench = 10*1000*1000
 func BenchHasher() int {
 
 	var start = time.Now().UnixNano()
-	var hasher = NewHasher()
+	var hasher = hashs.NewHasher()
 
 	for i:=0; i<hashTobench ; i++  {
 		hasher.Hash("1234567890")
@@ -26,7 +28,7 @@ func BenchBruter() int {
 
 	var start = time.Now().UnixNano()
 
-	var worder = NewWorder()
+	var worder = words.NewWorder()
 
 	for i:=0; i<hashTobench ; i++  {
 		worder.Next()
