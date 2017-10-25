@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 )
 
 func main() {
@@ -20,10 +21,13 @@ func main() {
 
 	fmt.Printf("Start brute-forcing...\n")
 
+	var start = time.Now().UnixNano()
 	var result = Launch(hash)
+	var end = time.Now().UnixNano()
 
 	if result != "" {
 		fmt.Printf("Found : %s\n", result)
+		fmt.Printf("In %f s", (float64(end-start) / 1000000000))
 	} else {
 		fmt.Printf("Not found\n")
 	}
