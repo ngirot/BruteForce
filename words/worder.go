@@ -1,19 +1,13 @@
 package words
 
-var alphabet = []string{
-	"0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
-	"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
-	"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
-	"(", ")", "`", "~", "!", "@", "#", "$", "%", "^", "&", "*", "-", "+", "=", "|", "\\", "{", "}", "[", "]", ":", ";", "\"", "'", "<", ">", ",", ".", "?", "/",
-}
-
 type Worder struct {
 	letters []int
+	alphabet []string
 	wordSize uint16
 }
 
-func NewWorder() Worder {
-	return Worder{make([]int, 1, 1), 1}
+func NewWorder(alphabet []string) Worder {
+	return Worder{make([]int, 1, 1), alphabet, 1}
 }
 
 func (w *Worder) Next() string {
@@ -30,8 +24,8 @@ func (w *Worder) updateToNextWord() {
 	var position int
 
 	for position = len(w.letters) - 1; position >= 0 && overflow; position-- {
-		var newValue= w.letters[position] + 1
-		if isOverflow(newValue) {
+		var newValue= w.letters[position] + 1	
+		if w.isOverflow(newValue) {
 			newValue = 0
 			overflow = true
 		} else {
@@ -51,12 +45,12 @@ func (w *Worder) generateWord() string {
 	var converted string
 
 	for _,letter := range w.letters {
-		converted += alphabet[letter]
+		converted += w.alphabet[letter]
 	}
 
 	return converted
 }
 
-func isOverflow(newValue int) bool {
-	return newValue%len(alphabet) == 0
+func (w *Worder) isOverflow(newValue int) bool {
+	return newValue%len(w.alphabet) == 0
 }
