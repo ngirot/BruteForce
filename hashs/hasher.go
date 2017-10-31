@@ -19,9 +19,9 @@ func (h *Hasher) Hash(data string) string {
 }
 
 func (h *Hasher) binaryHash(data []byte) []byte {
-	var x = sha256.New()
-	x.Write([]byte(data))
-	return x.Sum(nil)
+	h.cache.Reset()
+	h.cache.Write([]byte(data))
+	return h.cache.Sum(nil)
 }
 
 func (h *Hasher) convert(s string) []byte {

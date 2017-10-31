@@ -6,11 +6,23 @@ import (
 )
 
 func Launch(hash string) string {
-	return TestAllStrings(testValue(hash), displayValue)
+	var builder = new(TesterBuilder)
+	builder.Build = buildTester(hash)
+
+	return TestAllStrings(*builder)
 }
 
-var hasher = hashs.NewHasher()
 var parsed = 0
+
+func buildTester(hash string) func() Tester {
+	return func() Tester {
+		var hasher = hashs.NewHasher()
+		var tester = new(Tester)
+		tester.Notify = displayValue
+		tester.Test = testValue(hash, hasher)
+		return *tester
+	}
+}
 
 func displayValue(data string) {
 	parsed++
@@ -19,7 +31,7 @@ func displayValue(data string) {
 	}
 }
 
-func testValue(hash string) func(string) bool {
+func testValue(hash string, hasher hashs.Hasher) func(string) bool {
 	return func(data string) bool {
 		return hasher.Hash(data) == hash
 	}

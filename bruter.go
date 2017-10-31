@@ -30,22 +30,24 @@ func wordProducer(worder words.Worder, c chan string) {
 	}
 }
 
-func wordConsumer(c chan string, test tester, notifyTesting status, r chan string) {
+func wordConsumer(c chan string, builder TesterBuilder, r chan string) {
+	var tester = builder.Build()
+
 	for word := range c {
-		if isHash(word, test, notifyTesting) != "" {
+		if isHash(word, tester.Test, tester.Notify) != "" {
 			r <- word
 		}
 	}
 }
 
-func TestAllStrings(test tester, notifyTesting status) string {
+func TestAllStrings(builder TesterBuilder) string {
 	var wordChannel = make(chan string, 500)
 	go wordProducer(words.NewWorder(alphabet), wordChannel)
 
 	var resultChannel = make(chan string)
 
 	for i:=0 ; i<25 ; i++ {
-		go wordConsumer(wordChannel, test, notifyTesting, resultChannel)
+		go wordConsumer(wordChannel, builder, resultChannel)
 	}
 
 	return <- resultChannel
