@@ -23,7 +23,6 @@ func isHash(word string, test tester, notifyTesting status) string {
 	}
 }
 
-
 func wordProducer(worder words.Worder, c chan string) {
 	for {
 		c <- worder.Next()
@@ -46,9 +45,9 @@ func TestAllStrings(builder TesterBuilder) string {
 
 	var resultChannel = make(chan string)
 
-	for i:=0 ; i<25 ; i++ {
+	for i := 0; i < 25; i++ {
 		go wordConsumer(wordChannel, builder, resultChannel)
 	}
 
-	return <- resultChannel
+	return <-resultChannel
 }
