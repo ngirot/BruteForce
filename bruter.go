@@ -1,6 +1,8 @@
 package main
 
-import "./words"
+import (
+	"./words"
+)
 
 type tester func(data string) bool
 type status func(data string)
@@ -12,15 +14,39 @@ var alphabet = []string{
 	"(", ")", "`", "~", "!", "@", "#", "$", "%", "^", "&", "*", "-", "+", "=", "|", "\\", "{", "}", "[", "]", ":", ";", "\"", "'", "<", ">", ",", ".", "?", "/",
 }
 
-func TestAllStrings(test tester, notifyTesting status) string {
-	var worder = words.NewWorder(alphabet)
+func isHash(word string, test tester, notifyTesting status) string {
+	notifyTesting(word)
+	if test(word) {
+		return word
+	} else {
+		return ""
+	}
+}
 
+
+func wordProducer(worder words.Worder, c chan string) {
 	for {
-		var word = worder.Next()
+		c <- worder.Next()
+	}
+}
 
-		notifyTesting(word)
-		if test(word) {
-			return word
+func wordConsumer(c chan string, test tester, notifyTesting status, r chan string) {
+	for word := range c {
+		if isHash(word, test, notifyTesting) != "" {
+			r <- word
 		}
 	}
+}
+
+func TestAllStrings(test tester, notifyTesting status) string {
+	var wordChannel = make(chan string, 500)
+	go wordProducer(words.NewWorder(alphabet), wordChannel)
+
+	var resultChannel = make(chan string)
+
+	for i:=0 ; i<25 ; i++ {
+		go wordConsumer(wordChannel, test, notifyTesting, resultChannel)
+	}
+
+	return <- resultChannel
 }
