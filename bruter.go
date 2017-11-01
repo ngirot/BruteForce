@@ -40,12 +40,12 @@ func wordConsumer(c chan string, builder TesterBuilder, r chan string) {
 }
 
 func TestAllStrings(builder TesterBuilder) string {
-	var wordChannel = make(chan string, 500)
-	go wordProducer(words.NewWorder(alphabet, 1, 0), wordChannel)
-
 	var resultChannel = make(chan string)
+	var numberOfChans = 25
 
-	for i := 0; i < 25; i++ {
+	for i := 0; i < numberOfChans; i++ {
+		var wordChannel = make(chan string, 200)
+		go wordProducer(words.NewWorder(alphabet, numberOfChans, i), wordChannel)
 		go wordConsumer(wordChannel, builder, resultChannel)
 	}
 
