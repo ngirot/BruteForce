@@ -2,6 +2,7 @@ package main
 
 import (
 	"./words"
+	"runtime"
 )
 
 type tester func(data string) bool
@@ -41,7 +42,7 @@ func wordConsumer(c chan string, builder TesterBuilder, r chan string) {
 
 func TestAllStrings(builder TesterBuilder) string {
 	var resultChannel = make(chan string)
-	var numberOfChans = 25
+	var numberOfChans = runtime.NumCPU()*2 + 1
 
 	for i := 0; i < numberOfChans; i++ {
 		var wordChannel = make(chan string, 200)
