@@ -1,7 +1,6 @@
 package hashs
 
 import (
-	"encoding/hex"
 	"crypto/sha256"
 	"hash"
 )
@@ -14,8 +13,8 @@ func NewHasher() Hasher {
 	return Hasher{sha256.New()}
 }
 
-func (h *Hasher) Hash(data string) string {
-	return h.format(h.binaryHash(h.convert(data)))
+func (h *Hasher) Hash(data string) []byte {
+	return h.binaryHash(h.convert(data))
 }
 
 func (h *Hasher) binaryHash(data []byte) []byte {
@@ -26,8 +25,4 @@ func (h *Hasher) binaryHash(data []byte) []byte {
 
 func (h *Hasher) convert(s string) []byte {
 	return []byte(s)
-}
-
-func (h *Hasher) format(data []byte) string {
-	return hex.EncodeToString(data)
 }

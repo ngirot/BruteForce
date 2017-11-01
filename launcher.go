@@ -3,6 +3,8 @@ package main
 import (
 	"./hashs"
 	"fmt"
+	"encoding/hex"
+	"bytes"
 )
 
 func Launch(hash string) string {
@@ -32,7 +34,9 @@ func displayValue(data string) {
 }
 
 func testValue(hash string, hasher hashs.Hasher) func(string) bool {
+	var hashBytes,_ = hex.DecodeString(hash)
 	return func(data string) bool {
-		return hasher.Hash(data) == hash
+		return bytes.Equal(hasher.Hash(data), hashBytes)
 	}
 }
+
