@@ -3,41 +3,41 @@ package words
 type Worder struct {
 	letters []int
 	alphabet []string
-	wordSize uint16
+	wordSize int
+	step int
 }
 
-func NewWorder(alphabet []string) Worder {
-	return Worder{make([]int, 1, 1), alphabet, 1}
+func NewWorder(alphabet []string, step int, skip int) Worder {
+	var worder = Worder{make([]int, 1, 1), alphabet, 1, step}
+	worder.updateToNextWord(skip)
+	return worder
 }
 
 func (w *Worder) Next() string {
 	var word = w.generateWord()
 
-	w.updateToNextWord()
+	w.updateToNextWord(w.step)
 
 	return word
 }
 
-func (w *Worder) updateToNextWord() {
-	var overflow = true
-
+func (w *Worder) updateToNextWord(step int) {
+	var overflow = step
 	var position int
 
-	for position = len(w.letters) - 1; position >= 0 && overflow; position-- {
-		var newValue= w.letters[position] + 1	
-		if w.isOverflow(newValue) {
-			newValue = 0
-			overflow = true
-		} else {
-			overflow = false
+	for overflow != 0 {
+		for position = w.wordSize-1; position >= 0 && overflow != 0; position-- {
+			var newValue = w.letters[position] + overflow
+			overflow = newValue / len(w.alphabet)
+
+			w.letters[position] = newValue % len(w.alphabet)
 		}
 
-		w.letters[position] = newValue
-	}
-
-	if overflow {
-		w.wordSize++
-		w.letters = make([]int, w.wordSize, w.wordSize)
+		if overflow > 0 {
+			overflow--
+			w.wordSize++
+			w.letters = prepend(w.letters, 0)
+		}
 	}
 }
 
@@ -51,6 +51,9 @@ func (w *Worder) generateWord() string {
 	return converted
 }
 
-func (w *Worder) isOverflow(newValue int) bool {
-	return newValue%len(w.alphabet) == 0
+func prepend(slice []int, value int) []int {
+	var s1 = make([]int, len(slice) + 1)
+	s1[0] = value
+	copy(s1[1:], slice)
+	return s1
 }

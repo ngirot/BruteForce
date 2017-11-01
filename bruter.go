@@ -41,7 +41,7 @@ func wordConsumer(c chan string, builder TesterBuilder, r chan string) {
 
 func TestAllStrings(builder TesterBuilder) string {
 	var wordChannel = make(chan string, 500)
-	go wordProducer(words.NewWorder(alphabet), wordChannel)
+	go wordProducer(words.NewWorder(alphabet, 1, 0), wordChannel)
 
 	var resultChannel = make(chan string)
 
