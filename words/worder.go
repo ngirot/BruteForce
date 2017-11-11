@@ -2,12 +2,12 @@ package words
 
 type Worder struct {
 	letters []int
-	alphabet []string
+	alphabet Alphabet
 	wordSize int
 	step int
 }
 
-func NewWorder(alphabet []string, step int, skip int) Worder {
+func NewWorder(alphabet Alphabet, step int, skip int) Worder {
 	var worder = Worder{make([]int, 1, 1), alphabet, 1, step}
 	worder.updateToNextWord(skip)
 	return worder
@@ -28,9 +28,9 @@ func (w *Worder) updateToNextWord(step int) {
 	for overflow != 0 {
 		for position = w.wordSize-1; position >= 0 && overflow != 0; position-- {
 			var newValue = w.letters[position] + overflow
-			overflow = newValue / len(w.alphabet)
+			overflow = newValue / w.alphabet.length()
 
-			w.letters[position] = newValue % len(w.alphabet)
+			w.letters[position] = newValue % w.alphabet.length()
 		}
 
 		if overflow > 0 {
@@ -44,8 +44,8 @@ func (w *Worder) updateToNextWord(step int) {
 func (w *Worder) generateWord() string {
 	var converted string
 
-	for _,letter := range w.letters {
-		converted += w.alphabet[letter]
+	for _,position := range w.letters {
+		converted += w.alphabet.letter(position)
 	}
 
 	return converted
