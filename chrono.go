@@ -6,12 +6,12 @@ import (
 
 type Chrono struct {
 	start int64
-	end int64
+	end   int64
 	state uint8
 }
 
 func NewChrono() Chrono {
-	return Chrono{state:0}
+	return Chrono{state: 0}
 }
 
 func (c *Chrono) Start() {
@@ -36,15 +36,13 @@ func (c *Chrono) DurationInNano() int64 {
 }
 
 func (c *Chrono) DurationInMilli() float64 {
-	return float64(c.DurationInNano())/1000000
+	return float64(c.DurationInNano()) / 1000000
 }
 
 func (c *Chrono) DurationInSeconds() float64 {
-	return c.DurationInMilli()/1000
+	return c.DurationInMilli() / 1000
 }
 
 func now() int64 {
 	return time.Now().UnixNano()
 }
-
-
