@@ -4,27 +4,35 @@ import (
 	"time"
 )
 
-type Chrono struct {
+type Chrono interface {
+	Start()
+	End()
+	DurationInNano() int64
+	DurationInMilli() float64
+	DurationInSeconds() float64
+}
+
+type chrono struct {
 	start int64
 	end   int64
 	state uint8
 }
 
 func NewChrono() Chrono {
-	return Chrono{state: 0}
+	return &chrono{state: 0}
 }
 
-func (c *Chrono) Start() {
+func (c *chrono) Start() {
 	c.start = now()
 	c.state = 1
 }
 
-func (c *Chrono) End() {
+func (c *chrono) End() {
 	c.end = now()
 	c.state = 2
 }
 
-func (c *Chrono) DurationInNano() int64 {
+func (c *chrono) DurationInNano() int64 {
 	if c.state == 1 {
 		return (now() - c.start)
 	}
@@ -35,11 +43,11 @@ func (c *Chrono) DurationInNano() int64 {
 	return 0
 }
 
-func (c *Chrono) DurationInMilli() float64 {
+func (c *chrono) DurationInMilli() float64 {
 	return float64(c.DurationInNano()) / 1000000
 }
 
-func (c *Chrono) DurationInSeconds() float64 {
+func (c *chrono) DurationInSeconds() float64 {
 	return c.DurationInMilli() / 1000
 }
 

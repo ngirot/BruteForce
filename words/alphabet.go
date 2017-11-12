@@ -4,7 +4,12 @@ import (
 	"io/ioutil"
 )
 
-type Alphabet struct {
+type Alphabet interface {
+	Length() int
+	Letter(position int) string
+}
+
+type alphabet struct {
 	letters []string
 }
 
@@ -20,13 +25,13 @@ func LoadAlphabet(file string) Alphabet {
 		letters[i] = string(c)
 	}
 
-	return Alphabet{letters}
+	return &alphabet{letters}
 }
 
-func (a *Alphabet) length() int {
+func (a *alphabet) Length() int {
 	return len(a.letters)
 }
 
-func (a *Alphabet) letter(position int) string {
+func (a *alphabet) Letter(position int) string {
 	return a.letters[position]
 }

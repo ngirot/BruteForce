@@ -1,6 +1,10 @@
 package words
 
-type Worder struct {
+type Worder interface {
+	Next() string
+}
+
+type worder struct {
 	letters []int
 	alphabet Alphabet
 	wordSize int
@@ -8,12 +12,12 @@ type Worder struct {
 }
 
 func NewWorder(alphabet Alphabet, step int, skip int) Worder {
-	var worder = Worder{make([]int, 1, 1), alphabet, 1, step}
+	var worder = worder{make([]int, 1, 1), alphabet, 1, step}
 	worder.updateToNextWord(skip)
-	return worder
+	return &worder
 }
 
-func (w *Worder) Next() string {
+func (w *worder) Next() string {
 	var word = w.generateWord()
 
 	w.updateToNextWord(w.step)
@@ -21,16 +25,16 @@ func (w *Worder) Next() string {
 	return word
 }
 
-func (w *Worder) updateToNextWord(step int) {
+func (w *worder) updateToNextWord(step int) {
 	var overflow = step
 	var position int
 
 	for overflow != 0 {
 		for position = w.wordSize-1; position >= 0 && overflow != 0; position-- {
 			var newValue = w.letters[position] + overflow
-			overflow = newValue / w.alphabet.length()
+			overflow = newValue / w.alphabet.Length()
 
-			w.letters[position] = newValue % w.alphabet.length()
+			w.letters[position] = newValue % w.alphabet.Length()
 		}
 
 		if overflow > 0 {
@@ -41,11 +45,11 @@ func (w *Worder) updateToNextWord(step int) {
 	}
 }
 
-func (w *Worder) generateWord() string {
+func (w *worder) generateWord() string {
 	var converted string
 
 	for _,position := range w.letters {
-		converted += w.alphabet.letter(position)
+		converted += w.alphabet.Letter(position)
 	}
 
 	return converted
