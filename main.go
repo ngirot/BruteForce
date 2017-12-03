@@ -1,15 +1,16 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
-	"flag"
 )
 
 func main() {
 	var bench = flag.Bool("benchmark", false, "Launch a benchmark")
-	var value = flag.String("value", "", "The value to be tested");
+	var value = flag.String("value", "", "The value to be tested")
 	var alphabet = flag.String("alphabet", "alphabet.default.data", "The file containing all characters")
+	var hashType = flag.String("type", "sha256", "The hash type")
 	flag.Parse()
 
 	if *bench {
@@ -19,7 +20,7 @@ func main() {
 	}
 
 	if *value == "" {
-		flag.Usage();
+		flag.Usage()
 		os.Exit(1)
 	}
 
@@ -27,13 +28,16 @@ func main() {
 
 	var chrono = NewChrono()
 	chrono.Start()
-	var result = Launch(*value, *alphabet)
-	chrono.End()
+	if result, error := Launch(*value, *alphabet, *hashType); error == nil {
+		chrono.End()
 
-	if result != "" {
-		fmt.Printf("Found : %s\n", result)
-		fmt.Printf("In %f s", chrono.DurationInSeconds())
+		if result != "" {
+			fmt.Printf("Found : %s\n", result)
+			fmt.Printf("In %f s", chrono.DurationInSeconds())
+		} else {
+			fmt.Printf("Not found\n")
+		}
 	} else {
-		fmt.Printf("Not found\n")
+		fmt.Printf("Hasher %s invalid: %q", *hashType, error)
 	}
 }

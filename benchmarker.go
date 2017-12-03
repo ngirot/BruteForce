@@ -9,7 +9,7 @@ import (
 const hashTobench = 10 * 1000 * 1000
 
 func BenchHasher() int {
-	var hasher = hashs.NewHasher()
+	var hasher = hashs.NewHasherSha256()
 
 	var chrono = NewChrono()
 	chrono.Start()

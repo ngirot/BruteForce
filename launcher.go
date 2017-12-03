@@ -7,22 +7,30 @@ import (
 	"fmt"
 )
 
-func Launch(hash string, alphabetFile  string) string {
+func Launch(hash string, alphabetFile string, hashType string) (string, error) {
 	var builder = new(TesterBuilder)
-	builder.Build = buildTester(hash)
 
-	return TestAllStrings(*builder, alphabetFile)
+	if builderFunc, error := buildTester(hash, hashType); error == nil {
+		builder.Build = builderFunc
+		return TestAllStrings(*builder, alphabetFile), nil
+	} else {
+		return "", error
+	}
 }
 
 var parsed = 0
 
-func buildTester(hash string) func() Tester {
-	return func() Tester {
-		var hasher = hashs.NewHasher()
-		var tester = new(Tester)
-		tester.Notify = displayValue
-		tester.Test = testValue(hash, hasher)
-		return *tester
+func buildTester(hash string, hashType string) (func() Tester, error) {
+	if hasherCreator, e := hashs.HasherCreator(hashType); e == nil {
+		return func() Tester {
+			var hasher = hasherCreator()
+			var tester = new(Tester)
+			tester.Notify = displayValue
+			tester.Test = testValue(hash, hasher)
+			return *tester
+		}, nil
+	} else {
+		return nil, e
 	}
 }
 
