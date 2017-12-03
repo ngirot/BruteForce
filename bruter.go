@@ -33,8 +33,8 @@ func wordConsumer(c chan string, builder TesterBuilder, r chan string) {
 	}
 }
 
-func TestAllStrings(builder TesterBuilder) string {
-	var alphabet = words.LoadAlphabet("alphabet.default.data")
+func TestAllStrings(builder TesterBuilder, alphabetFile string) string {
+	var alphabet = words.LoadAlphabet(alphabetFile)
 	var resultChannel = make(chan string)
 	var numberOfChans = runtime.NumCPU()*2 + 1
 

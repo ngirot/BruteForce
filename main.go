@@ -9,6 +9,7 @@ import (
 func main() {
 	var bench = flag.Bool("benchmark", false, "Launch a benchmark")
 	var value = flag.String("value", "", "The value to be tested");
+	var alphabet = flag.String("alphabet", "alphabet.default.data", "The file containing all characters")
 	flag.Parse()
 
 	if *bench {
@@ -26,7 +27,7 @@ func main() {
 
 	var chrono = NewChrono()
 	chrono.Start()
-	var result = Launch(*value)
+	var result = Launch(*value, *alphabet)
 	chrono.End()
 
 	if result != "" {

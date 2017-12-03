@@ -7,11 +7,11 @@ import (
 	"fmt"
 )
 
-func Launch(hash string) string {
+func Launch(hash string, alphabetFile  string) string {
 	var builder = new(TesterBuilder)
 	builder.Build = buildTester(hash)
 
-	return TestAllStrings(*builder)
+	return TestAllStrings(*builder, alphabetFile)
 }
 
 var parsed = 0
