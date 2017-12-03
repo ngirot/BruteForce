@@ -33,11 +33,11 @@ func main() {
 
 		if result != "" {
 			fmt.Printf("Found : %s\n", result)
-			fmt.Printf("In %f s", chrono.DurationInSeconds())
+			fmt.Printf("In %f s\n", chrono.DurationInSeconds())
 		} else {
 			fmt.Printf("Not found\n")
 		}
 	} else {
-		fmt.Printf("Hasher %s invalid: %q", *hashType, error)
+		fmt.Printf("Hasher %s invalid: %q\n", *hashType, error)
 	}
 }
