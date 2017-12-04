@@ -30,7 +30,7 @@ In 0.081383 s
 ```
 
 ## Compilation
-Just run:
+Just run in src folder:
 ```
-go build
+go build -o BruteForce
 ```
