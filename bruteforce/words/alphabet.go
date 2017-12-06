@@ -17,6 +17,10 @@ func BuildAlphabet(letters []string) Alphabet {
 	return &alphabet{letters}
 }
 
+func DefaultAlphabet() Alphabet {
+	return &alphabet{defaultAlphabet}
+}
+
 func LoadAlphabet(file string) Alphabet {
 	var data,_ = ioutil.ReadFile(file)
 	var letters = make([]string, len(data), len(data))

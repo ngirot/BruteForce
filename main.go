@@ -3,14 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
 	"github.com/ngirot/BruteForce/bruteforce"
+	"os"
 )
 
 func main() {
 	var bench = flag.Bool("benchmark", false, "Launch a benchmark")
 	var value = flag.String("value", "", "The value to be tested")
-	var alphabet = flag.String("alphabet", "alphabet.default.data", "The file containing all characters")
+	var alphabet = flag.String("alphabet", "", "The file containing all characters")
 	var hashType = flag.String("type", "sha256", "The hash type")
 	flag.Parse()
 
