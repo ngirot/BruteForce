@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./hashs"
+	"hashs"
 	"bytes"
 	"encoding/hex"
 	"fmt"

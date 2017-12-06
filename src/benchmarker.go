@@ -1,8 +1,8 @@
 package main
 
 import (
-	"./hashs"
-	"./words"
+	"hashs"
+	"words"
 	"math"
 )
 
