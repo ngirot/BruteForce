@@ -15,8 +15,8 @@ func main() {
 	flag.Parse()
 
 	if *bench {
-		fmt.Printf("One CPU hasher : %d kh/s\n", bruteforce.BenchHasher()/1000)
-		fmt.Printf("One CPU word generator : %d kw/s\n", bruteforce.BenchBruter()/1000)
+		fmt.Printf("One CPU (SHA256) hasher: %d kh/s\n", bruteforce.BenchHasher()/1000)
+		fmt.Printf("One CPU word generator: %d kw/s\n", bruteforce.BenchBruter()/1000)
 		os.Exit(0)
 	}
 
@@ -33,7 +33,7 @@ func main() {
 		chrono.End()
 
 		if result != "" {
-			fmt.Printf("Found : %s\n", result)
+			fmt.Printf("Found: %s\n", result)
 			fmt.Printf("In %f s\n", chrono.DurationInSeconds())
 		} else {
 			fmt.Printf("Not found\n")
