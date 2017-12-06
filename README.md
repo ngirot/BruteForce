@@ -1,5 +1,6 @@
 # BruteForce
 A simple brute forcer written in GO
+[![Build Status](https://travis-ci.org/ngirot/BruteForce.svg?branch=master)](https://travis-ci.org/ngirot/BruteForce)
 
 ## Usage
 
