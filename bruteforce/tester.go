@@ -1,4 +1,4 @@
-package main
+package bruteforce
 
 type TesterBuilder struct {
 	Build func() Tester

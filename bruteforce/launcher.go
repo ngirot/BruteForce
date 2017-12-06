@@ -1,10 +1,10 @@
-package main
+package bruteforce
 
 import (
-	"hashs"
 	"bytes"
 	"encoding/hex"
 	"fmt"
+	"github.com/ngirot/BruteForce/bruteforce/hashs"
 )
 
 func Launch(hash string, alphabetFile string, hashType string) (string, error) {

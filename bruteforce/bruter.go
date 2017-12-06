@@ -1,8 +1,8 @@
-package main
+package bruteforce
 
 import (
-	"words"
 	"runtime"
+	"github.com/ngirot/BruteForce/bruteforce/words"
 )
 
 type tester func(data string) bool

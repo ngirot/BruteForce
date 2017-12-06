@@ -1,9 +1,9 @@
-package main
+package bruteforce
 
 import (
-	"hashs"
-	"words"
 	"math"
+	"github.com/ngirot/BruteForce/bruteforce/hashs"
+	"github.com/ngirot/BruteForce/bruteforce/words"
 )
 
 const hashTobench = 10 * 1000 * 1000

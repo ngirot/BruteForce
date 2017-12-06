@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"github.com/ngirot/BruteForce/bruteforce"
 )
 
 func main() {
@@ -14,8 +15,8 @@ func main() {
 	flag.Parse()
 
 	if *bench {
-		fmt.Printf("One CPU hasher : %d kh/s\n", BenchHasher()/1000)
-		fmt.Printf("One CPU word generator : %d kw/s\n", BenchBruter()/1000)
+		fmt.Printf("One CPU hasher : %d kh/s\n", bruteforce.BenchHasher()/1000)
+		fmt.Printf("One CPU word generator : %d kw/s\n", bruteforce.BenchBruter()/1000)
 		os.Exit(0)
 	}
 
@@ -26,9 +27,9 @@ func main() {
 
 	fmt.Printf("Start brute-forcing...\n")
 
-	var chrono = NewChrono()
+	var chrono = bruteforce.NewChrono()
 	chrono.Start()
-	if result, error := Launch(*value, *alphabet, *hashType); error == nil {
+	if result, error := bruteforce.Launch(*value, *alphabet, *hashType); error == nil {
 		chrono.End()
 
 		if result != "" {

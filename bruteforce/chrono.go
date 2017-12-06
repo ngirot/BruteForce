@@ -1,4 +1,4 @@
-package main
+package bruteforce
 
 import (
 	"time"
