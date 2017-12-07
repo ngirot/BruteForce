@@ -17,16 +17,11 @@ func isHash(word string, test tester, notifyTesting status) string {
 	}
 }
 
-func wordProducer(worder words.Worder, c chan string) {
-	for {
-		c <- worder.Next()
-	}
-}
-
-func wordConsumer(c chan string, builder TesterBuilder, r chan string) {
+func wordConsumer(worder words.Worder, builder TesterBuilder, r chan string) {
 	var tester = builder.Build()
 
-	for word := range c {
+	for {
+		var word = worder.Next()
 		if isHash(word, tester.Test, tester.Notify) != "" {
 			r <- word
 		}
@@ -42,9 +37,8 @@ func TestAllStrings(builder TesterBuilder, alphabetFile string) string {
 	var numberOfChans = runtime.NumCPU()*2 + 1
 
 	for i := 0; i < numberOfChans; i++ {
-		var wordChannel = make(chan string, 200)
-		go wordProducer(words.NewWorder(alphabet, numberOfChans, i), wordChannel)
-		go wordConsumer(wordChannel, builder, resultChannel)
+		var worder = words.NewWorder(alphabet, numberOfChans, i)
+		go wordConsumer(worder, builder, resultChannel)
 	}
 
 	return <-resultChannel
