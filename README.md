@@ -1,10 +1,10 @@
 # BruteForce [![Build Status](https://travis-ci.org/ngirot/BruteForce.svg?branch=master)](https://travis-ci.org/ngirot/BruteForce)
-A simple brute forcer written in GO
+A simple brute force software written in GO
 
 ## Usage
 
 ```
-BruteForce --type [md5|sha256] --value <hash>
+BruteForce --type [md5|sha256|sha512|sha1] --value <hash>
 ```
 
 Example: 
@@ -27,10 +27,4 @@ You can launch it with:
 Start brute-forcing...
 Found: test
 In 0.081383 s
-```
-
-## Compilation
-Just run in src folder:
-```
-go build -o BruteForce
 ```
