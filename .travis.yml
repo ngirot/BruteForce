@@ -1,3 +1,9 @@
 language: go
 go:
  - 1.9
+
+script:
+ - go test -v ./...
+ - env GOOS=linux GOARCH=amd64 go build -o BruteForce-linux-amd64 github.com/ngirot/BruteForce
+ - env GOOS=windows GOARCH=amd64 go build -o BruteForce-windows-amd64 github.com/ngirot/BruteForce
+ - env GOOS=linux GOARCH=arm go build -o BruteForce-linux-arm github.com/ngirot/BruteForce
