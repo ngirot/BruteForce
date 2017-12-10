@@ -7,3 +7,15 @@ script:
  - env GOOS=linux GOARCH=amd64 go build -o BruteForce-linux-amd64 github.com/ngirot/BruteForce
  - env GOOS=windows GOARCH=amd64 go build -o BruteForce-windows-amd64 github.com/ngirot/BruteForce
  - env GOOS=linux GOARCH=arm go build -o BruteForce-linux-arm github.com/ngirot/BruteForce
+
+deploy:
+  provider: releases
+  api_key:
+    secure: $GITHUB_OAUTH_TOKEN
+  file:
+    - "BruteForce-linux-amd64"
+    - "BruteForce-windows-amd64"
+    - "BruteForce-linux-arm"
+  skip_cleanup: true
+  on:
+    tags: true
