@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/ngirot/BruteForce/bruteforce/hashs"
+	"time"
 )
 
 func Launch(hash string, alphabetFile string, hashType string) (string, error) {
@@ -22,10 +23,12 @@ var parsed = 0
 
 func buildTester(hash string, hashType string) (func() Tester, error) {
 	if hasherCreator, e := hashs.HasherCreator(hashType); e == nil {
+		var heart = make(chan bool)
+		go heartBeat(heart)
 		return func() Tester {
 			var hasher = hasherCreator()
 			var tester = new(Tester)
-			tester.Notify = displayValue
+			tester.Notify = displayValue(heart)
 			tester.Test = testValue(hash, hasher)
 			return *tester
 		}, nil
@@ -34,10 +37,13 @@ func buildTester(hash string, hashType string) (func() Tester, error) {
 	}
 }
 
-func displayValue(data string) {
-	parsed++
-	if parsed%1000000 == 0 {
-		fmt.Printf("Done: %s\n", data)
+func displayValue(heart chan bool) func(string){
+	return func(data string) {
+		select {
+		case <- heart:
+			fmt.Printf("\r%s...", data)
+		default:
+		}
 	}
 }
 
@@ -45,5 +51,12 @@ func testValue(hash string, hasher hashs.Hasher) func(string) bool {
 	var hashBytes, _ = hex.DecodeString(hash)
 	return func(data string) bool {
 		return bytes.Equal(hasher.Hash(data), hashBytes)
+	}
+}
+
+func heartBeat(heart chan bool) {
+	for {
+		time.Sleep(time.Millisecond * 500)
+		heart <- true
 	}
 }
