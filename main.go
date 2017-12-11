@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/ngirot/BruteForce/bruteforce"
 	"os"
+	"github.com/ngirot/BruteForce/bruteforce/hashs"
 )
 
 func main() {
@@ -15,7 +16,13 @@ func main() {
 	flag.Parse()
 
 	if *bench {
-		fmt.Printf("One CPU (SHA256) hasher: %d kh/s\n", bruteforce.BenchHasher()/1000)
+		var types = hashs.AllHasherTypes()
+		for _,t := range types {
+			var hasherCreator,_ = hashs.HasherCreator(t)
+			var time = bruteforce.BenchHasherOneCpu(hasherCreator())
+			fmt.Printf("One CPU (%s) hasher: %d kh/s\n",t, time/1000)
+		}
+
 		fmt.Printf("One CPU word generator: %d kw/s\n", bruteforce.BenchBruter()/1000)
 		os.Exit(0)
 	}

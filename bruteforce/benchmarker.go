@@ -8,9 +8,7 @@ import (
 
 const hashTobench = 10 * 1000 * 1000
 
-func BenchHasher() int {
-	var hasher = hashs.NewHasherSha256()
-
+func BenchHasherOneCpu(hasher hashs.Hasher) int {
 	var chrono = NewChrono()
 	chrono.Start()
 
@@ -24,7 +22,7 @@ func BenchHasher() int {
 }
 
 func BenchBruter() int {
-	var alphabet = words.LoadAlphabet("alphabet.default.data")
+	var alphabet = words.DefaultAlphabet()
 	var worder = words.NewWorder(alphabet, 1, 0)
 
 	var chrono = NewChrono()
