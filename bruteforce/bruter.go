@@ -1,8 +1,8 @@
 package bruteforce
 
 import (
-	"runtime"
 	"github.com/ngirot/BruteForce/bruteforce/words"
+	"github.com/ngirot/BruteForce/bruteforce/conf"
 )
 
 type tester func(data string) bool
@@ -34,7 +34,7 @@ func TestAllStrings(builder TesterBuilder, alphabetFile string) string {
 		alphabet = words.LoadAlphabet(alphabetFile)
 	}
 	var resultChannel = make(chan string)
-	var numberOfChans = runtime.NumCPU()*2 + 1
+	var numberOfChans = conf.BestNumberOfGoRoutine()
 
 	for i := 0; i < numberOfChans; i++ {
 		var worder = words.NewWorder(alphabet, numberOfChans, i)
