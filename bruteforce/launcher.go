@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/ngirot/BruteForce/bruteforce/hashs"
 	"time"
+	"github.com/ngirot/BruteForce/bruteforce/display"
 )
 
 func Launch(hash string, alphabetFile string, hashType string) (string, error) {
@@ -25,10 +26,13 @@ func buildTester(hash string, hashType string) (func() Tester, error) {
 	if hasherCreator, e := hashs.HasherCreator(hashType); e == nil {
 		var heart = make(chan bool)
 		go heartBeat(heart)
+
+		var spinner = display.NewDefaultSpinner()
+
 		return func() Tester {
 			var hasher = hasherCreator()
 			var tester = new(Tester)
-			tester.Notify = displayValue(heart)
+			tester.Notify = displayValue(spinner, heart)
 			tester.Test = testValue(hash, hasher)
 			return *tester
 		}, nil
@@ -37,11 +41,12 @@ func buildTester(hash string, hashType string) (func() Tester, error) {
 	}
 }
 
-func displayValue(heart chan bool) func(string){
+func displayValue(spinner display.Spinner, heart chan bool) func(string){
+
 	return func(data string) {
 		select {
 		case <- heart:
-			fmt.Printf("\r%s...", data)
+			fmt.Printf("\r%s %s...", spinner.Spin(), data)
 		default:
 		}
 	}
