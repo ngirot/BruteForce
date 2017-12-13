@@ -20,8 +20,6 @@ func Launch(hash string, alphabetFile string, hashType string) (string, error) {
 	}
 }
 
-var parsed = 0
-
 func buildTester(hash string, hashType string) (func() Tester, error) {
 	if hasherCreator, e := hashs.HasherCreator(hashType); e == nil {
 		var heart = make(chan bool)
@@ -42,7 +40,6 @@ func buildTester(hash string, hashType string) (func() Tester, error) {
 }
 
 func displayValue(spinner display.Spinner, heart chan bool) func(string){
-
 	return func(data string) {
 		select {
 		case <- heart:
