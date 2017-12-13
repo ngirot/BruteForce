@@ -22,24 +22,41 @@ func wordConsumer(worder words.Worder, builder TesterBuilder, r chan string) {
 
 	for {
 		var word = worder.Next()
+		if word == "" {
+			r <- ""
+		}
+
 		if isHash(word, tester.Test, tester.Notify) != "" {
 			r <- word
 		}
 	}
 }
 
-func TestAllStrings(builder TesterBuilder, alphabetFile string) string {
-	var alphabet = words.DefaultAlphabet()
-	if alphabetFile != "" {
-		alphabet = words.LoadAlphabet(alphabetFile)
-	}
+func TestAllStrings(builder TesterBuilder, alphabetFile string, dictionaryFile string) string {
+
 	var resultChannel = make(chan string)
 	var numberOfChans = conf.BestNumberOfGoRoutine()
 
 	for i := 0; i < numberOfChans; i++ {
-		var worder = words.NewWorder(alphabet, numberOfChans, i)
+		var worder = words.CreateWorder(alphabetFile, dictionaryFile, numberOfChans, i)
 		go wordConsumer(worder, builder, resultChannel)
 	}
 
-	return <-resultChannel
+	return waitForResult(resultChannel, numberOfChans)
+}
+
+func waitForResult(resultChannel chan string, numberOfChans int) string {
+	var returned = 0
+	for v := range resultChannel {
+		if v != "" {
+			return v
+		} else {
+			returned++
+		}
+
+		if returned == numberOfChans {
+			return ""
+		}
+	}
+	return ""
 }

@@ -15,8 +15,9 @@ Found: abc
 In 0.012920 s
 ```
 
+### How to use a specific char set 
 If you want to use a specific set of chars, write it on a simple txt file and use the --alphabet option
-Example with a file alpha.data containing
+Example with a file alpha.data containing:
 ```
 abcdefghijklmnopqrstuvwxyz
 ```
@@ -27,4 +28,22 @@ You can launch it with:
 Start brute-forcing...
 Found: test
 In 0.081383 s
+```
+
+### How to use a dictionary file
+If you want to use a file containing all words to be tested, write them on a simple file (one per line) and use the --dictionary option.
+Example with a file dic.data containing:
+
+```
+dragon
+butterfly
+test
+```
+
+You can launch it with:
+```
+./BruteForce --dictionary dic.data --type sha256 --value 9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08
+Start brute-forcing...
+Found: test
+In 0.000531 s
 ```

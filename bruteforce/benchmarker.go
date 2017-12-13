@@ -59,7 +59,7 @@ func hashLoop(hasher hashs.Hasher, oneDone func(), quit chan bool) {
 
 func BenchBruter() int {
 	var alphabet = words.DefaultAlphabet()
-	var worder = words.NewWorder(alphabet, 1, 0)
+	var worder = words.NewWorderAlphabet(alphabet, 1, 0)
 
 	var chrono = NewChrono()
 	chrono.Start()

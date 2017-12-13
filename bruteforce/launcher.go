@@ -9,12 +9,12 @@ import (
 	"github.com/ngirot/BruteForce/bruteforce/display"
 )
 
-func Launch(hash string, alphabetFile string, hashType string) (string, error) {
+func Launch(hash string, alphabetFile string, dictionaryFile string, hashType string) (string, error) {
 	var builder = new(TesterBuilder)
 
 	if builderFunc, error := buildTester(hash, hashType); error == nil {
 		builder.Build = builderFunc
-		return TestAllStrings(*builder, alphabetFile), nil
+		return TestAllStrings(*builder, alphabetFile, dictionaryFile), nil
 	} else {
 		return "", error
 	}

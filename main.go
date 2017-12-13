@@ -12,6 +12,7 @@ func main() {
 	var bench = flag.Bool("benchmark", false, "Launch a benchmark")
 	var value = flag.String("value", "", "The value to be tested")
 	var alphabet = flag.String("alphabet", "", "The file containing all characters")
+	var dictionary = flag.String("dictionary", "", "The file containing all words to be tested")
 	var hashType = flag.String("type", "sha256", "The hash type")
 	flag.Parse()
 
@@ -38,7 +39,7 @@ func main() {
 
 	var chrono = bruteforce.NewChrono()
 	chrono.Start()
-	if result, error := bruteforce.Launch(*value, *alphabet, *hashType); error == nil {
+	if result, error := bruteforce.Launch(*value, *alphabet, *dictionary, *hashType); error == nil {
 		chrono.End()
 
 		if result != "" {
