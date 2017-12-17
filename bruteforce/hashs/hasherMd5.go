@@ -17,6 +17,10 @@ func (h *hasherMd5) Hash(data string) []byte {
 	return h.binaryHash(h.convert(data))
 }
 
+func (h *hasherMd5) IsValid(data string) bool {
+	return genericBase64Validator(h, data)
+}
+
 func (h *hasherMd5) binaryHash(data []byte) []byte {
 	h.cache.Reset()
 	h.cache.Write([]byte(data))

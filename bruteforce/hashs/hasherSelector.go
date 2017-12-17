@@ -28,6 +28,14 @@ func AllHasherTypes() []string {
 	return values
 }
 
+func IsValidhash(hashType string, hash string) bool {
+	if hasherCreator, e := HasherCreator(hashType); e == nil {
+		return hasherCreator().IsValid(hash)
+	} else {
+		return true
+	}
+}
+
 func buildHasherMap() map[string] func() Hasher{
 	var hasherMap = make(map[string] func() Hasher)
 	hasherMap["sha256"] = func() Hasher {return NewHasherSha256()}

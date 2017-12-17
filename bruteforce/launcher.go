@@ -7,10 +7,15 @@ import (
 	"github.com/ngirot/BruteForce/bruteforce/hashs"
 	"time"
 	"github.com/ngirot/BruteForce/bruteforce/display"
+	"errors"
 )
 
 func Launch(hash string, alphabetFile string, dictionaryFile string, hashType string) (string, error) {
 	var builder = new(TesterBuilder)
+
+	if !hashs.IsValidhash(hashType, hash) {
+		return "", errors.New("hash value '" + hash + "' is not valid for type '" + hashType + "'")
+	}
 
 	if builderFunc, error := buildTester(hash, hashType); error == nil {
 		builder.Build = builderFunc

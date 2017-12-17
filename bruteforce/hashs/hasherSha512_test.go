@@ -30,6 +30,30 @@ func TestHashSha512MultipleTimes(t *testing.T) {
 	}
 }
 
+func TestIsValidSha512WithARealSha512(t *testing.T) {
+	var hasher = NewHasherSha512()
+
+	if !hasher.IsValid("ee26b0dd4af7e749aa1a8ee3c10ae9923f618980772e473f8819a5d4940e0db27ac185f8a0e1d5f84f88bc887fd67b143732c304cc5fa9ad8e6f57f50028a8ff") {
+		t.Fail()
+	}
+}
+
+func TestIsValidSha512WithAnInvalidSize(t *testing.T) {
+	var hasher = NewHasherSha512()
+
+	if hasher.IsValid("ee26b0dd4af7e749aa1a8ee3c10ae9923f618980772e473f8819a5d4940e0db27ac185f8a0e1d5f84f88bc887fd67b143732c304cc5fa9ad8e6f57f50028") {
+		t.Fail()
+	}
+}
+
+func TestIsValidSha512WithNotABase64(t *testing.T) {
+	var hasher = NewHasherSha512()
+
+	if hasher.IsValid("ee2%b0dd4af7e749aa1a8ee3c10ae9923f618980772e473f8819a5d4940e0db27ac185f8a0e1d5f84f88bc887fd67b143732c304cc5fa9ad8e6f57f50028a8ff") {
+		t.Fail()
+	}
+}
+
 func sha512ToString(data [] byte) string {
 	return hex.EncodeToString(data)
 }

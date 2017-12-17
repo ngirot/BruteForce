@@ -30,6 +30,30 @@ func TestHashSha256MultipleTimes(t *testing.T) {
 	}
 }
 
+func TestIsValidSha256WithARealSha256(t *testing.T) {
+	var hasher = NewHasherSha256()
+
+	if !hasher.IsValid("f89eddccb44ae418616060aefe3ca6604d49bc3d0e37e75167333d498532d7aa") {
+		t.Fail()
+	}
+}
+
+func TestIsValidSha256WithAnInvalidSize(t *testing.T) {
+	var hasher = NewHasherSha256()
+
+	if hasher.IsValid("f89eddccb44ae418616060aefe3ca6604d49bc3d0e37e7516733") {
+		t.Fail()
+	}
+}
+
+func TestIsValidSha256WithNotABase64(t *testing.T) {
+	var hasher = NewHasherSha256()
+
+	if hasher.IsValid("098f6b:d4621$373cade4e832627b4f6") {
+		t.Fail()
+	}
+}
+
 func sha256ToString(data [] byte) string {
 	return hex.EncodeToString(data)
 }
