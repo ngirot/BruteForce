@@ -4,31 +4,28 @@ package display
 
 import (
 	"testing"
-	"fmt"
 )
 
+func TestSpin_ShouldIncrementValue(t *testing.T) {
+	var s = NewCustomSpinner([]string{"0", "1", "2", "3"})
 
-func TestSpinShouldLoop(t *testing.T) {
-	var s = NewCustomSpinner([]string{"0", "1"})
-
-	if s.Spin() != "0" {
-		t.Fail()
-	}
-	if s.Spin() != "1" {
-		t.Fail()
-	}
-	if s.Spin() != "0" {
-		t.Fail()
-	}
+	testSpin(t, s, "0")
+	testSpin(t, s, "1")
+	testSpin(t, s, "2")
+	testSpin(t, s, "3")
 }
 
-func TestSpinShouldLoop2(t *testing.T) {
-	var s = NewDefaultSpinner()
+func TestSpin_ShouldLoop(t *testing.T) {
+	var s = NewCustomSpinner([]string{"0", "1"})
 
-	fmt.Printf("%s\n", s.Spin())
-	fmt.Printf("%s\n", s.Spin())
-	fmt.Printf("%s\n", s.Spin())
-	fmt.Printf("%s\n", s.Spin())
-	fmt.Printf("%s\n", s.Spin())
-	fmt.Printf("%s\n", s.Spin())
+	testSpin(t, s, "0")
+	testSpin(t, s, "1")
+	testSpin(t, s, "0")
+}
+
+func testSpin(t *testing.T, s Spinner, expected string) {
+	var actual = s.Spin()
+	if actual != expected {
+		t.Errorf("The value of the spinner should be %s but was %s", expected, actual)
+	}
 }

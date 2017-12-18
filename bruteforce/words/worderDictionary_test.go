@@ -4,62 +4,77 @@ import (
 	"testing"
 )
 
-func TestWorderDictionaryGoToNextWord(t *testing.T) {
+func TestWorderDictionary_Next_ShouldGoFromOneWordToAnother(t *testing.T) {
 	var worder = NewWorderDictionary([]string{"word1", "word2"}, 1, 0)
 
-	if worder.Next() != "word1" {
-		t.Fail()
+	var expectedFirstWord = "word1"
+	var firstWord = worder.Next()
+	if firstWord != expectedFirstWord {
+		t.Errorf("First word should be '%s' but was '%s'", expectedFirstWord, firstWord)
 	}
 
-	if worder.Next() != "word2" {
-		t.Fail()
+	var expectedSecondWord = "word2"
+	var secondWord = worder.Next()
+	if secondWord != expectedSecondWord {
+		t.Errorf("Second word should be '%s' but was '%s'", expectedFirstWord, firstWord)
 	}
 }
 
-func TestWorderDictionaryGoToNextWordShouldStopWhenAllValuesHasBeenReturned(t *testing.T) {
+func TestWorderDictionary_Next_ShouldReturnEmptyStringWhenAllWOrdsWereReturned(t *testing.T) {
 	var worder = NewWorderDictionary([]string{"word1", "word2"}, 1, 0)
 
 	worder.Next()
 	worder.Next()
 
-	if worder.Next() != "" {
-		t.Fail()
+	var result = worder.Next()
+	if result != "" {
+		t.Errorf("When the dictionary is empty, the result should be an empty string but was '%s'", result)
 	}
 }
 
-func TestWorderDictionaryGoToNextWordAndSkipSome(t *testing.T) {
-	var worder = NewWorderDictionary([]string{"word0", "word1", "word2", "word3", "word4", "word5"}, 2, 0)
+func TestWorderDictionary_Next_SkipSomeWordsWithAStepValue(t *testing.T) {
+	var worder = NewWorderDictionary([]string{"word0", "word1", "word2", "word3"}, 2, 0)
 
-	if worder.Next() != "word0" {
-		t.Fail()
+	var expectedFirstWord = "word0"
+	var firstWord = worder.Next()
+	if firstWord != expectedFirstWord {
+		t.Errorf("First word should be '%s' but was '%s'", expectedFirstWord, firstWord)
 	}
 
-	if worder.Next() != "word2" {
-		t.Fail()
+	var expectedSecondWord = "word2"
+	var secondWord = worder.Next()
+	if secondWord != expectedSecondWord {
+		t.Errorf("Second word should be '%s' but was '%s'", expectedFirstWord, firstWord)
 	}
 }
 
-func TestWorderDictionarySkip(t *testing.T)  {
+func TestWorderDictionary_Next_ShouldSkipValuesAtInitialisation(t *testing.T)  {
 	var worder = NewWorderDictionary([]string{"word0", "word1", "word2", "word3"}, 1, 2)
-	if worder.Next() != "word2" {
-		t.Fail()
+
+	var expectedFirstWord = "word2"
+	var firstWord = worder.Next()
+	if firstWord != expectedFirstWord {
+		t.Errorf("First word should be '%s' but was '%s'", expectedFirstWord, firstWord)
 	}
 }
 
 
-
-func TestWorderDictionarySkipWithAStep(t *testing.T)  {
+func TestWorderDictionary_Next_ShouldMixSkipAndStep(t *testing.T)  {
 	var worder = NewWorderDictionary([]string{"word0", "word1", "word2", "word3"}, 5, 2)
-	if worder.Next() != "word2" {
-		t.Fail()
+
+	var expectedFirstWord = "word2"
+	var firstWord = worder.Next()
+	if firstWord != expectedFirstWord {
+		t.Errorf("First word should be '%s' but was '%s'", expectedFirstWord, firstWord)
 	}
 }
 
-func TestWorderDictionaryGoToWordReturnEmptyStringIfSkipIsTooHigh(t *testing.T) {
+func TestWorderDictionary_Next_ShouldRetundEmptyStringIfSkipValueIdBiggerThanDictionarySize(t *testing.T) {
 	var worder = NewWorderDictionary([]string{"word0", "word1", "word2"}, 1, 4)
 
-	if worder.Next() != "" {
-		t.Fail()
+	var result = worder.Next()
+	if result != "" {
+		t.Errorf("When the dictionary is empty, the result should be an empty string but was '%s'", result)
 	}
 }
 

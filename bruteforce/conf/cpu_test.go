@@ -4,9 +4,9 @@ import (
 	"testing"
 )
 
-func TestBestNumberOfGoRoutinesShouldReturnAtLeastOne(t *testing.T) {
+func TestBestNumberOfGoRoutines_ShouldReturnAtLeastOne(t *testing.T) {
 	var n = BestNumberOfGoRoutine()
 	if n <= 0 {
-		t.Fail()
+		t.Errorf("The number of CPU should be at least 1, but was %d", n)
 	}
 }
