@@ -2,6 +2,7 @@ package bruteforce
 
 import (
 	"time"
+	"math"
 )
 
 type Chrono interface {
@@ -10,6 +11,7 @@ type Chrono interface {
 	DurationInNano() int64
 	DurationInMilli() float64
 	DurationInSeconds() float64
+	DurationInRoundedSeconds() int
 }
 
 type chrono struct {
@@ -49,6 +51,10 @@ func (c *chrono) DurationInMilli() float64 {
 
 func (c *chrono) DurationInSeconds() float64 {
 	return c.DurationInMilli() / 1000
+}
+
+func (c *chrono) DurationInRoundedSeconds() int {
+	return int(math.Floor(c.DurationInSeconds()))
 }
 
 func now() int64 {

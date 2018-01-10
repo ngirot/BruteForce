@@ -43,7 +43,7 @@ func main() {
 		chrono.End()
 
 		if result != "" {
-			fmt.Printf("\rFound: %s in %f s\n", result, chrono.DurationInSeconds())
+			fmt.Printf("\rFound: %s in %d s\n", result, chrono.DurationInRoundedSeconds())
 		} else {
 			fmt.Printf("\rNot found\n")
 		}
