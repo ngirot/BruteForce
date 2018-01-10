@@ -35,17 +35,17 @@ func wordConsumer(worder words.Worder, builder TesterBuilder, r chan string) {
 func TestAllStrings(builder TesterBuilder, alphabetFile string, dictionaryFile string) string {
 
 	var resultChannel = make(chan string)
-	var numberOfChans = conf.BestNumberOfGoRoutine()
+	var numberOfParallelRoutines = conf.BestNumberOfGoRoutine()
 
-	for i := 0; i < numberOfChans; i++ {
-		var worder = words.CreateWorder(alphabetFile, dictionaryFile, numberOfChans, i)
+	for i := 0; i < numberOfParallelRoutines; i++ {
+		var worder = words.CreateWorder(alphabetFile, dictionaryFile, numberOfParallelRoutines, i)
 		go wordConsumer(worder, builder, resultChannel)
 	}
 
-	return waitForResult(resultChannel, numberOfChans)
+	return waitForResult(resultChannel, numberOfParallelRoutines)
 }
 
-func waitForResult(resultChannel chan string, numberOfChans int) string {
+func waitForResult(resultChannel chan string, numberOfChannels int) string {
 	var returned = 0
 	for v := range resultChannel {
 		if v != "" {
@@ -54,7 +54,7 @@ func waitForResult(resultChannel chan string, numberOfChans int) string {
 			returned++
 		}
 
-		if returned == numberOfChans {
+		if returned == numberOfChannels {
 			return ""
 		}
 	}
