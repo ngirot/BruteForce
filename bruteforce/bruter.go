@@ -8,16 +8,29 @@ import (
 type tester func(data string) bool
 type status func(data string)
 
-func isHash(word string, test tester, notifyTesting status) string {
+func TestAllStrings(builder TesterBuilder, alphabetFile string, dictionaryFile string, salt string) string {
+
+	var resultChannel = make(chan string)
+	var numberOfParallelRoutines = conf.BestNumberOfGoRoutine()
+
+	for i := 0; i < numberOfParallelRoutines; i++ {
+		var worder = words.CreateWorder(alphabetFile, dictionaryFile, numberOfParallelRoutines, i)
+		go wordConsumer(worder, builder, salt, resultChannel)
+	}
+
+	return waitForResult(resultChannel, numberOfParallelRoutines)
+}
+
+func isHash(word string, salt string, test tester, notifyTesting status) string {
 	notifyTesting(word)
-	if test(word) {
+	if test(word + salt) {
 		return word
 	} else {
 		return ""
 	}
 }
 
-func wordConsumer(worder words.Worder, builder TesterBuilder, r chan string) {
+func wordConsumer(worder words.Worder, builder TesterBuilder, salt string, r chan string) {
 	var tester = builder.Build()
 
 	for {
@@ -26,23 +39,10 @@ func wordConsumer(worder words.Worder, builder TesterBuilder, r chan string) {
 			r <- ""
 		}
 
-		if isHash(word, tester.Test, tester.Notify) != "" {
+		if isHash(word, salt, tester.Test, tester.Notify) != "" {
 			r <- word
 		}
 	}
-}
-
-func TestAllStrings(builder TesterBuilder, alphabetFile string, dictionaryFile string) string {
-
-	var resultChannel = make(chan string)
-	var numberOfParallelRoutines = conf.BestNumberOfGoRoutine()
-
-	for i := 0; i < numberOfParallelRoutines; i++ {
-		var worder = words.CreateWorder(alphabetFile, dictionaryFile, numberOfParallelRoutines, i)
-		go wordConsumer(worder, builder, resultChannel)
-	}
-
-	return waitForResult(resultChannel, numberOfParallelRoutines)
 }
 
 func waitForResult(resultChannel chan string, numberOfChannels int) string {

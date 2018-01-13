@@ -14,6 +14,7 @@ func main() {
 	var alphabet = flag.String("alphabet", "", "The file containing all characters")
 	var dictionary = flag.String("dictionary", "", "The file containing all words to be tested")
 	var hashType = flag.String("type", "sha256", "The hash type")
+	var salt = flag.String("salt", "", "The salt added to the end of the generated word")
 	flag.Parse()
 
 	if *bench {
@@ -35,11 +36,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Printf("Start brute-forcing...\n")
+	fmt.Printf("Start brute-forcing (%s)...\n", *hashType)
 
 	var chrono = bruteforce.NewChrono()
 	chrono.Start()
-	if result, error := bruteforce.Launch(*value, *alphabet, *dictionary, *hashType); error == nil {
+	if result, error := bruteforce.Launch(*value, *alphabet, *dictionary, *hashType, *salt); error == nil {
 		chrono.End()
 
 		if result != "" {

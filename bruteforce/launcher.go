@@ -10,7 +10,7 @@ import (
 	"errors"
 )
 
-func Launch(hash string, alphabetFile string, dictionaryFile string, hashType string) (string, error) {
+func Launch(hash string, alphabetFile string, dictionaryFile string, hashType string, salt string) (string, error) {
 	var builder = new(TesterBuilder)
 
 	if !hashs.IsValidhash(hashType, hash) {
@@ -19,7 +19,7 @@ func Launch(hash string, alphabetFile string, dictionaryFile string, hashType st
 
 	if builderFunc, error := buildTester(hash, hashType); error == nil {
 		builder.Build = builderFunc
-		return TestAllStrings(*builder, alphabetFile, dictionaryFile), nil
+		return TestAllStrings(*builder, alphabetFile, dictionaryFile, salt), nil
 	} else {
 		return "", error
 	}
