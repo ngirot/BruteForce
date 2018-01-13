@@ -8,25 +8,26 @@ import (
 	"time"
 	"github.com/ngirot/BruteForce/bruteforce/display"
 	"errors"
+	"github.com/ngirot/BruteForce/bruteforce/conf"
 )
 
-func Launch(hash string, alphabetFile string, dictionaryFile string, hashType string, salt string) (string, error) {
+func Launch(hash conf.HashConf, wordConf conf.WordConf) (string, error) {
 	var builder = new(TesterBuilder)
 
-	if !hashs.IsValidhash(hashType, hash) {
-		return "", errors.New("hash value '" + hash + "' is not valid for type '" + hashType + "'")
+	if !hashs.IsValidhash(hash) {
+		return "", errors.New("hash value '" + hash.Value + "' is not valid for type '" + hash.HashType + "'")
 	}
 
-	if builderFunc, error := buildTester(hash, hashType); error == nil {
+	if builderFunc, error := buildTester(hash); error == nil {
 		builder.Build = builderFunc
-		return TestAllStrings(*builder, alphabetFile, dictionaryFile, salt), nil
+		return TestAllStrings(*builder, wordConf), nil
 	} else {
 		return "", error
 	}
 }
 
-func buildTester(hash string, hashType string) (func() Tester, error) {
-	if hasherCreator, e := hashs.HasherCreator(hashType); e == nil {
+func buildTester(hash conf.HashConf) (func() Tester, error) {
+	if hasherCreator, e := hashs.HasherCreator(hash.HashType); e == nil {
 		var heart = make(chan bool)
 		go heartBeat(heart)
 
@@ -36,7 +37,7 @@ func buildTester(hash string, hashType string) (func() Tester, error) {
 			var hasher = hasherCreator()
 			var tester = new(Tester)
 			tester.Notify = displayValue(spinner, heart)
-			tester.Test = testValue(hash, hasher)
+			tester.Test = testValue(hash.Value, hasher)
 			return *tester
 		}, nil
 	} else {

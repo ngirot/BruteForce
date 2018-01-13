@@ -8,14 +8,14 @@ import (
 type tester func(data string) bool
 type status func(data string)
 
-func TestAllStrings(builder TesterBuilder, alphabetFile string, dictionaryFile string, salt string) string {
+func TestAllStrings(builder TesterBuilder, wordConf conf.WordConf) string {
 
 	var resultChannel = make(chan string)
 	var numberOfParallelRoutines = conf.BestNumberOfGoRoutine()
 
 	for i := 0; i < numberOfParallelRoutines; i++ {
-		var worder = words.CreateWorder(alphabetFile, dictionaryFile, numberOfParallelRoutines, i)
-		go wordConsumer(worder, builder, salt, resultChannel)
+		var worder = words.CreateWorder(wordConf.Alphabet, wordConf.Dictionary, numberOfParallelRoutines, i)
+		go wordConsumer(worder, builder, wordConf.Salt, resultChannel)
 	}
 
 	return waitForResult(resultChannel, numberOfParallelRoutines)

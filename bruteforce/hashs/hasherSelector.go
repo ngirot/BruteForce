@@ -3,6 +3,7 @@ package hashs
 import (
 	"errors"
 	"strings"
+	"github.com/ngirot/BruteForce/bruteforce/conf"
 )
 
 func HasherCreator(hashType string) (func() Hasher, error) {
@@ -28,9 +29,9 @@ func AllHasherTypes() []string {
 	return values
 }
 
-func IsValidhash(hashType string, hash string) bool {
-	if hasherCreator, e := HasherCreator(hashType); e == nil {
-		return hasherCreator().IsValid(hash)
+func IsValidhash(hash conf.HashConf) bool {
+	if hasherCreator, e := HasherCreator(hash.HashType); e == nil {
+		return hasherCreator().IsValid(hash.Value)
 	} else {
 		return true
 	}

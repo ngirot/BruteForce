@@ -6,6 +6,7 @@ import (
 	"github.com/ngirot/BruteForce/bruteforce"
 	"github.com/ngirot/BruteForce/bruteforce/hashs"
 	"os"
+	"github.com/ngirot/BruteForce/bruteforce/conf"
 )
 
 func main() {
@@ -38,9 +39,12 @@ func main() {
 
 	fmt.Printf("Start brute-forcing (%s)...\n", *hashType)
 
+	var hashConf = conf.NewHash(*value, *hashType)
+	var wordConf = conf.NewWordConf(*dictionary, *alphabet, *salt)
+
 	var chrono = bruteforce.NewChrono()
 	chrono.Start()
-	if result, error := bruteforce.Launch(*value, *alphabet, *dictionary, *hashType, *salt); error == nil {
+	if result, error := bruteforce.Launch(hashConf, wordConf); error == nil {
 		chrono.End()
 
 		if result != "" {
