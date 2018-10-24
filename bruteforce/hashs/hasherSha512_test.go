@@ -1,11 +1,9 @@
 package hashs
 
 import (
-	"testing"
 	"encoding/hex"
+	"testing"
 )
-
-
 
 func TestHasherSha512_Hash_WithSimpleWord(t *testing.T) {
 	var hasher = NewHasherSha512()

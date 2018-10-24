@@ -1,8 +1,8 @@
 package bruteforce
 
 import (
-	"time"
 	"math"
+	"time"
 )
 
 type Chrono interface {

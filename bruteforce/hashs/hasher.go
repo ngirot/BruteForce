@@ -1,8 +1,8 @@
 package hashs
 
 import (
-	"encoding/hex"
 	"encoding/base64"
+	"encoding/hex"
 )
 
 type Hasher interface {

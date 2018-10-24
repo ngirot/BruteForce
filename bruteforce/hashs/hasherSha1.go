@@ -1,8 +1,8 @@
 package hashs
 
 import (
-	"hash"
 	"crypto/sha1"
+	"hash"
 )
 
 type hasherSha1 struct {
@@ -10,7 +10,7 @@ type hasherSha1 struct {
 }
 
 func NewHasherSha1() Hasher {
-	return &hasherSha256{sha1.New()}
+	return &hasherSha1{sha1.New()}
 }
 
 func (h *hasherSha1) Hash(data string) []byte {

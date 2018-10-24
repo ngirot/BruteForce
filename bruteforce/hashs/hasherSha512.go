@@ -1,8 +1,8 @@
 package hashs
 
 import (
-	"hash"
 	"crypto/sha512"
+	"hash"
 )
 
 type hasherSha512 struct {

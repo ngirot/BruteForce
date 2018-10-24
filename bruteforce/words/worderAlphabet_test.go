@@ -62,7 +62,7 @@ func TestWorderAlphabet_Next_ShouldSkipByIncresingWordSizeWhenAllLettersWasRetur
 	}
 }
 
-func TestWorderAlphabetçNext_ShouldUseSkipAtInitialisation(t *testing.T)  {
+func TestWorderAlphabet_Next_ShouldUseSkipAtInitialisation(t *testing.T)  {
 	var worder = NewWorderAlphabet(BuildAlphabet([]string{"0", "1", "2", "3"}), 1, 2)
 
 	var expectedResult = "2"

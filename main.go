@@ -4,9 +4,9 @@ import (
 	"flag"
 	"fmt"
 	"github.com/ngirot/BruteForce/bruteforce"
+	"github.com/ngirot/BruteForce/bruteforce/conf"
 	"github.com/ngirot/BruteForce/bruteforce/hashs"
 	"os"
-	"github.com/ngirot/BruteForce/bruteforce/conf"
 )
 
 func main() {

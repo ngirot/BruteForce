@@ -1,11 +1,11 @@
 package bruteforce
 
 import (
-	"math"
+	"github.com/ngirot/BruteForce/bruteforce/conf"
 	"github.com/ngirot/BruteForce/bruteforce/hashs"
 	"github.com/ngirot/BruteForce/bruteforce/words"
+	"math"
 	"time"
-	"github.com/ngirot/BruteForce/bruteforce/conf"
 )
 
 const hashTobench = 10 * 1000 * 1000

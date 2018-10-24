@@ -3,12 +3,12 @@ package bruteforce
 import (
 	"bytes"
 	"encoding/hex"
+	"errors"
 	"fmt"
+	"github.com/ngirot/BruteForce/bruteforce/conf"
+	"github.com/ngirot/BruteForce/bruteforce/display"
 	"github.com/ngirot/BruteForce/bruteforce/hashs"
 	"time"
-	"github.com/ngirot/BruteForce/bruteforce/display"
-	"errors"
-	"github.com/ngirot/BruteForce/bruteforce/conf"
 )
 
 func Launch(hash conf.HashConf, wordConf conf.WordConf) (string, error) {

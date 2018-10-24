@@ -2,8 +2,8 @@ package hashs
 
 import (
 	"errors"
-	"strings"
 	"github.com/ngirot/BruteForce/bruteforce/conf"
+	"strings"
 )
 
 func HasherCreator(hashType string) (func() Hasher, error) {
@@ -12,7 +12,7 @@ func HasherCreator(hashType string) (func() Hasher, error) {
 	if val, present := hasherMap[hashType]; present {
 		var creator = func() Hasher {
 			return val()
-		};
+		}
     	return creator, nil
 	}
 
@@ -20,7 +20,7 @@ func HasherCreator(hashType string) (func() Hasher, error) {
 }
 
 func AllHasherTypes() []string {
-	var values = []string{}
+	var values []string
 
 	for k := range buildHasherMap() {
 		values = append(values, k)

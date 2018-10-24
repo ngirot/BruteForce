@@ -1,8 +1,8 @@
 package bruteforce
 
 import (
-	"github.com/ngirot/BruteForce/bruteforce/words"
 	"github.com/ngirot/BruteForce/bruteforce/conf"
+	"github.com/ngirot/BruteForce/bruteforce/words"
 )
 
 type tester func(data string) bool

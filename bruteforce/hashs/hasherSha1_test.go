@@ -1,8 +1,8 @@
 package hashs
 
 import (
-	"testing"
 	"encoding/hex"
+	"testing"
 )
 
 func TestHasherSha1_Hash_WithSimpleWord(t *testing.T) {

@@ -1,8 +1,8 @@
 package hashs
 
 import (
-	"hash"
 	"crypto/md5"
+	"hash"
 )
 
 type hasherMd5 struct {

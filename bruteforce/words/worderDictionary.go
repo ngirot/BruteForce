@@ -1,8 +1,8 @@
 package words
 
 import (
-	"os"
 	"bufio"
+	"os"
 )
 
 type worderDictionary struct {
