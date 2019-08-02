@@ -16,7 +16,7 @@ func TestWorderAlphabet_Next_ShouldGoFromOneLetterToAnother(t *testing.T) {
 	var expectedSecondWord = "b"
 	var secondWord = worder.Next()
 	if secondWord != expectedSecondWord {
-		t.Errorf("Second word should be '%s' but was '%s'", expectedFirstWord, firstWord)
+		t.Errorf("Second word should be '%s' but was '%s'", expectedSecondWord, secondWord)
 	}
 }
 
@@ -45,7 +45,7 @@ func TestWorderAlphabet_Next_ShouldSkipWordsDuringLoop(t *testing.T) {
 	var expectedSecondWord = "2"
 	var secondWord = worder.Next()
 	if secondWord != expectedSecondWord {
-		t.Errorf("Second word should be '%s' but was '%s'", expectedFirstWord, firstWord)
+		t.Errorf("Second word should be '%s' but was '%s'", expectedSecondWord, secondWord)
 	}
 }
 
@@ -91,3 +91,15 @@ func TestWorderAlphabet_Next_ShouldSkipMoreWordsThanAlphabetSize(t *testing.T)  
 		t.Errorf("The word '%s' was expected to be '%s' when the initialisation skip is bigger than initialisation size", result, expectedResult)
 	}
 }
+
+func TestWorderAlphabet_Next_ShouldSkipMoreWordsThanTwiceAlphabetSize(t *testing.T) {
+	var worder = NewWorderAlphabet(BuildAlphabet([]string{"0", "1"}), 1, 12)
+
+	var expectedResult = "110"
+	var result = worder.Next()
+	if result != expectedResult {
+		t.Errorf("The word '%s' was expected to be '%s' when the initialisation skip is bigger than initialisation size", result, expectedResult)
+	}
+}
+
+
