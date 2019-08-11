@@ -15,60 +15,45 @@ func Test_Launcher_ShouldFindSimpleSha256HashFromAlphabet_IntegrationTest(t *tes
 			HashType: "sha256",
 		}, conf.WordConf{Alphabet: "testAlphabet.data"})
 
-		if error != nil {
-			t.Errorf("A simple hash should not generate an error")
-		}
-
-		if result != "abc" {
-			t.Errorf("Expected 'abc' but found '%s'", result)
-		}
+		checkResult("abc", result, error, t)
 	})
 }
 
 func Test_Launcher_ShouldFindSimpleSha256HashFromAlphabetWithSalt_IntegrationTest(t *testing.T) {
 	timeout(t, func(t *testing.T) {
 		result, error := Launch(conf.HashConf{
-			Value:    "30dd1b89fa858b25136181c1eae57f4afa256328a8a6d5275d18c01648f0d121",
+			Value:    "d43f1b69d87466016e70505bf91c0fd2f075a905b6d18b3bbe2f60ae2ca3dac6",
 			HashType: "sha256",
 		}, conf.WordConf{Alphabet: "testAlphabet.data", Salt: "salty"})
 
-		if error != nil {
-			t.Errorf("A simple hash should not generate an error")
-		}
-
-		if result != "abc" {
-			t.Errorf("Expected 'abc' but found '%s'", result)
-		}
+		checkResult("efg", result, error, t)
 	})
 }
 
 func Test_Launcher_ShouldFindSimpleSha256HashFromDictionary_IntegrationTest(t *testing.T) {
 	result, error := Launch(conf.HashConf{
-		Value:    "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",
+		Value:    "3eb95849b1228d1f28f57e60aa691e78f295245e79681e3bbb7a5807d4e01ed6",
 		HashType: "sha256",
 	}, conf.WordConf{Dictionary: "testDictionary.data"})
 
-	if error != nil {
-		t.Errorf("A simple hash should not generate an error")
-	}
-
-	if result != "abc" {
-		t.Errorf("Expected 'abc' but found '%s'", result)
-	}
+	checkResult("fromDic", result, error, t)
 }
 
 func Test_Launcher_ShouldFindSimpleSha256HashFromDictionaryWithSalt_IntegrationTest(t *testing.T) {
 	result, error := Launch(conf.HashConf{
-		Value:    "30dd1b89fa858b25136181c1eae57f4afa256328a8a6d5275d18c01648f0d121",
+		Value:    "a6c624948b941bd972cf11d58af3cb5bb3ed326eb8107fe7bb5cb4f549706455",
 		HashType: "sha256",
 	}, conf.WordConf{Dictionary: "testDictionary.data", Salt: "salty"})
 
-	if error != nil {
+	checkResult("maybe", result, error, t)
+}
+
+func checkResult(expected string, result string, e error, t *testing.T) {
+	if e != nil {
 		t.Errorf("A simple hash should not generate an error")
 	}
-
-	if result != "abc" {
-		t.Errorf("Expected 'abc' but found '%s'", result)
+	if result != expected {
+		t.Errorf("Expected '%s' but found '%s'", expected, result)
 	}
 }
 
