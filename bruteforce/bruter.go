@@ -37,6 +37,7 @@ func wordConsumer(worder words.Worder, builder TesterBuilder, salt string, r cha
 		var word = worder.Next()
 		if word == "" {
 			r <- ""
+			return
 		}
 
 		if isHash(word, salt, tester.Test, tester.Notify) != "" {
