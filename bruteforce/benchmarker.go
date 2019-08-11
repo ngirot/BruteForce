@@ -8,18 +8,27 @@ import (
 	"time"
 )
 
-const hashTobench = 10 * 1000 * 1000
-
 func BenchHasherOneCpu(hasherCreator func() hashs.Hasher) int {
-	return bench(hasherCreator, 1)
+	var buildActionFunc = getBuildActionFuncForHasher(hasherCreator)
+	return bench(buildActionFunc, 1)
 }
 
 func BenchHasherMultiCpu(hasherCreator func() hashs.Hasher) int {
-	return bench(hasherCreator, conf.BestNumberOfGoRoutine())
+	var buildActionFunc = getBuildActionFuncForHasher(hasherCreator)
+	return bench(buildActionFunc, conf.BestNumberOfGoRoutine())
 }
 
+func BenchWorderOneCpu() int {
+	var buildActionFunc = getBuildActionFuncForWorder()
+	return bench(buildActionFunc, 1)
+}
 
-func bench(hasherCreator func() hashs.Hasher, cpus int) int {
+func BenchWorderMultiCpu() int {
+	var buildActionFunc = getBuildActionFuncForWorder()
+	return bench(buildActionFunc, conf.BestNumberOfGoRoutine())
+}
+
+func bench(buildActionFunc func() func(), cpus int) int {
 	var chrono = NewChrono()
 	chrono.Start()
 
@@ -30,9 +39,8 @@ func bench(hasherCreator func() hashs.Hasher, cpus int) int {
 
 	var quit = make(chan bool)
 	for i := 0; i < cpus; i++ {
-		go hashLoop(hasherCreator(), oneDone, quit)
+		go actionLoop(buildActionFunc(), oneDone, quit)
 	}
-
 
 	time.Sleep(time.Second * 5)
 
@@ -44,31 +52,33 @@ func bench(hasherCreator func() hashs.Hasher, cpus int) int {
 	return int(math.Floor(float64(count) / chrono.DurationInSeconds()))
 }
 
-func hashLoop(hasher hashs.Hasher, oneDone func(), quit chan bool) {
+func actionLoop(action func(), oneDone func(), quit chan bool) {
 	for {
-		hasher.Hash("1234567890")
+		action()
 
 		select {
-		case <- quit:
+		case <-quit:
 			return
 		default:
 			oneDone()
 		}
 	}
 }
-
-func BenchBruter() int {
-	var alphabet = words.DefaultAlphabet()
-	var worder = words.NewWorderAlphabet(alphabet, 1, 0)
-
-	var chrono = NewChrono()
-	chrono.Start()
-
-	for i := 0; i < hashTobench; i++ {
-		worder.Next()
+func getBuildActionFuncForHasher(hasherCreator func() hashs.Hasher) func() func() {
+	return func() func() {
+		var hasher = hasherCreator()
+		return func() {
+			hasher.Hash("1234567890")
+		}
 	}
+}
 
-	chrono.End()
-
-	return int(math.Floor(hashTobench / chrono.DurationInSeconds()))
+func getBuildActionFuncForWorder() func() func() {
+	return func() func() {
+		var alphabet = words.DefaultAlphabet()
+		var worder = words.NewWorderAlphabet(alphabet, 1, 0)
+		return func() {
+			worder.Next()
+		}
+	}
 }

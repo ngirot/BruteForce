@@ -28,7 +28,8 @@ func main() {
 			fmt.Printf("Multi CPU (%s) hasher: %d kh/s\n", t, timeMultiCpu/1000)
 		}
 
-		fmt.Printf("One CPU word generator: %d kw/s\n", bruteforce.BenchBruter()/1000)
+		fmt.Printf("One CPU word generator: %d kw/s\n", bruteforce.BenchWorderOneCpu()/1000)
+		fmt.Printf("Multi CPU word generator: %d kw/s\n", bruteforce.BenchWorderMultiCpu()/1000)
 		os.Exit(0)
 	}
 
