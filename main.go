@@ -22,14 +22,19 @@ func main() {
 		var types = hashs.AllHasherTypes()
 		for _, t := range types {
 			var hasherCreator, _ = hashs.HasherCreator(t)
+			fmt.Printf("One CPU (%s) hasher: ", t)
 			var timeOneCpu = bruteforce.BenchHasherOneCpu(hasherCreator)
-			fmt.Printf("One CPU (%s) hasher: %d kh/s\n", t, timeOneCpu/1000)
+			fmt.Printf("%d kh/s\n", timeOneCpu/1000)
+
+			fmt.Printf("Multi CPU (%s) hasher: ", t)
 			var timeMultiCpu = bruteforce.BenchHasherMultiCpu(hasherCreator)
-			fmt.Printf("Multi CPU (%s) hasher: %d kh/s\n", t, timeMultiCpu/1000)
+			fmt.Printf("%d kh/s\n", timeMultiCpu/1000)
 		}
 
-		fmt.Printf("One CPU word generator: %d kw/s\n", bruteforce.BenchWorderOneCpu()/1000)
-		fmt.Printf("Multi CPU word generator: %d kw/s\n", bruteforce.BenchWorderMultiCpu()/1000)
+		fmt.Printf("One CPU word generator: ")
+		fmt.Printf("%d kw/s\n", bruteforce.BenchWorderOneCpu()/1000)
+		fmt.Printf("Multi CPU word generator: ")
+		fmt.Printf("%d kw/s\n", bruteforce.BenchWorderMultiCpu()/1000)
 		os.Exit(0)
 	}
 
