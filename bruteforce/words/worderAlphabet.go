@@ -35,9 +35,9 @@ func (w *worderAlphabet) updateToNextWord(step int) {
 			}
 
 			if overflow > 0 {
-				overflow--
+				overflow = 0
 				w.wordSize++
-				w.letters = prepend(w.letters, 0)
+				w.letters = make([]int, w.wordSize)
 			}
 		}
 	}
@@ -51,11 +51,4 @@ func (w *worderAlphabet) generateWord() string {
 	}
 
 	return converted
-}
-
-func prepend(slice []int, value int) []int {
-	var s1 = make([]int, len(slice)+1)
-	s1[0] = value
-	copy(s1[1:], slice)
-	return s1
 }
