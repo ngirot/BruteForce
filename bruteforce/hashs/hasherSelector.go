@@ -3,6 +3,7 @@ package hashs
 import (
 	"errors"
 	"github.com/ngirot/BruteForce/bruteforce/conf"
+	"sort"
 	"strings"
 )
 
@@ -25,6 +26,8 @@ func AllHasherTypes() []string {
 	for k := range buildHasherMap() {
 		values = append(values, k)
 	}
+
+	sort.Strings(values)
 
 	return values
 }
