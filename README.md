@@ -9,9 +9,9 @@ BruteForce --type [md5|sha256|sha512|sha1] --value <hash>
 
 Example: 
 ```
-./BruteForce --type sha256 --value ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad
+./BruteForce --type sha256 --value 88d4266fd4e6338d13b845fcf289579d209c897823b9217da3e161936f031589
 Start brute-forcing (sha256)...
-Found: abc in 0 s
+Found: abc in 1 s
 ```
 
 ### How to use a specific char set 
@@ -46,12 +46,15 @@ Found: test in 0 s
 ```
 
 ### How to use a salt
-If you want to use a salt you can simply add it with the salt parameter
+If you want to use a salt you can simply add it with the salt parameter (before and/or after)
 Example:
 ```
-./BruteForce --value cb2537e62f7f7358cb5b6a812c7d3c7d95d87733 --type sha1 --salt 1234567890
+./BruteForce --value cb2537e62f7f7358cb5b6a812c7d3c7d95d87733 --type sha1 --salt-after 1234567890
 Start brute-forcing (sha1)...
-Found: zzzz in 1 s
-
-
+Found: zzzz in 3 s
+```
+```
+./BruteForce --value ef95124ec674cea240e9dd02c86ba3670e2ee5a2 --type sha1 --salt-before 1234567890
+Start brute-forcing (sha1)...
+Found: zzzz in 3 s
 ```

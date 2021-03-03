@@ -15,22 +15,22 @@ func TestAllStrings(builder TesterBuilder, wordConf conf.WordConf) string {
 
 	for i := 0; i < numberOfParallelRoutines; i++ {
 		var worder = words.CreateWorder(wordConf.Alphabet, wordConf.Dictionary, numberOfParallelRoutines, i)
-		go wordConsumer(worder, builder, wordConf.Salt, resultChannel)
+		go wordConsumer(worder, builder, wordConf.SaltBefore, wordConf.SaltAfter, resultChannel)
 	}
 
 	return waitForResult(resultChannel, numberOfParallelRoutines)
 }
 
-func isHash(word string, salt string, test tester, notifyTesting status) string {
+func isHash(word string, saltBefore string, saltAfter string, test tester, notifyTesting status) string {
 	notifyTesting(word)
-	if test(word + salt) {
+	if test(saltBefore + word + saltAfter) {
 		return word
 	} else {
 		return ""
 	}
 }
 
-func wordConsumer(worder words.Worder, builder TesterBuilder, salt string, r chan string) {
+func wordConsumer(worder words.Worder, builder TesterBuilder, saltBefore string, saltAfter string, r chan string) {
 	var tester = builder.Build()
 
 	for {
@@ -40,7 +40,7 @@ func wordConsumer(worder words.Worder, builder TesterBuilder, salt string, r cha
 			return
 		}
 
-		if isHash(word, salt, tester.Test, tester.Notify) != "" {
+		if isHash(word, saltBefore, saltAfter, tester.Test, tester.Notify) != "" {
 			r <- word
 		}
 	}

@@ -3,9 +3,10 @@ package conf
 type WordConf struct {
 	Dictionary string
 	Alphabet string
-	Salt string
+	SaltBefore string
+	SaltAfter string
 }
 
-func NewWordConf(dictionary string, alphabet string, salt string) WordConf {
-	return WordConf{dictionary, alphabet, salt}
+func NewWordConf(dictionary string, alphabet string, saltBefore string, saltAfter string) WordConf {
+	return WordConf{dictionary, alphabet, saltBefore, saltAfter}
 }

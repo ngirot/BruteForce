@@ -19,12 +19,23 @@ func Test_Launcher_ShouldFindSimpleSha256HashFromAlphabet_IntegrationTest(t *tes
 	})
 }
 
-func Test_Launcher_ShouldFindSimpleSha256HashFromAlphabetWithSalt_IntegrationTest(t *testing.T) {
+func Test_Launcher_ShouldFindSimpleSha256HashFromAlphabetWithSaltAfter_IntegrationTest(t *testing.T) {
 	timeout(t, func(t *testing.T) {
 		result, error := Launch(conf.HashConf{
 			Value:    "d43f1b69d87466016e70505bf91c0fd2f075a905b6d18b3bbe2f60ae2ca3dac6",
 			HashType: "sha256",
-		}, conf.WordConf{Alphabet: "testAlphabet.data", Salt: "salty"})
+		}, conf.WordConf{Alphabet: "testAlphabet.data", SaltAfter: "salty"})
+
+		checkResult("efg", result, error, t)
+	})
+}
+
+func Test_Launcher_ShouldFindSimpleSha256HashFromAlphabetWithSaltBefore_IntegrationTest(t *testing.T) {
+	timeout(t, func(t *testing.T) {
+		result, error := Launch(conf.HashConf{
+			Value:    "73963907b19c38e6cf8d4c9e4c08d966269abd5a17dca0171804be9121bd525c",
+			HashType: "sha256",
+		}, conf.WordConf{Alphabet: "testAlphabet.data", SaltBefore: "salty"})
 
 		checkResult("efg", result, error, t)
 	})
@@ -39,11 +50,20 @@ func Test_Launcher_ShouldFindSimpleSha256HashFromDictionary_IntegrationTest(t *t
 	checkResult("fromDic", result, error, t)
 }
 
-func Test_Launcher_ShouldFindSimpleSha256HashFromDictionaryWithSalt_IntegrationTest(t *testing.T) {
+func Test_Launcher_ShouldFindSimpleSha256HashFromDictionaryWithSaltAfter_IntegrationTest(t *testing.T) {
 	result, error := Launch(conf.HashConf{
 		Value:    "a6c624948b941bd972cf11d58af3cb5bb3ed326eb8107fe7bb5cb4f549706455",
 		HashType: "sha256",
-	}, conf.WordConf{Dictionary: "testDictionary.data", Salt: "salty"})
+	}, conf.WordConf{Dictionary: "testDictionary.data", SaltAfter: "salty"})
+
+	checkResult("maybe", result, error, t)
+}
+
+func Test_Launcher_ShouldFindSimpleSha256HashFromDictionaryWithSaltBefore_IntegrationTest(t *testing.T) {
+	result, error := Launch(conf.HashConf{
+		Value:    "75e1aea225bdb80135b82dce07dfb302a2654bd680113eaf05807017e6a83fe4",
+		HashType: "sha256",
+	}, conf.WordConf{Dictionary: "testDictionary.data", SaltBefore: "salty"})
 
 	checkResult("maybe", result, error, t)
 }

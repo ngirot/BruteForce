@@ -15,7 +15,8 @@ func main() {
 	var alphabet = flag.String("alphabet", "", "The file containing all characters")
 	var dictionary = flag.String("dictionary", "", "The file containing all words to be tested")
 	var hashType = flag.String("type", "sha256", "The hash type")
-	var salt = flag.String("salt", "", "The salt added to the end of the generated word")
+	var saltBefore = flag.String("salt-before", "", "The salt added to the end of the generated word")
+	var saltAfter = flag.String("salt-after", "", "The salt added to the beginning of the generated word")
 	flag.Parse()
 
 	if *bench {
@@ -46,7 +47,7 @@ func main() {
 	fmt.Printf("Start brute-forcing (%s)...\n", *hashType)
 
 	var hashConf = conf.NewHash(*value, *hashType)
-	var wordConf = conf.NewWordConf(*dictionary, *alphabet, *salt)
+	var wordConf = conf.NewWordConf(*dictionary, *alphabet, *saltBefore, *saltAfter)
 
 	var chrono = bruteforce.NewChrono()
 	chrono.Start()
@@ -56,7 +57,7 @@ func main() {
 		if result != "" {
 			fmt.Printf("\rFound: %s in %d s\n", result, chrono.DurationInRoundedSeconds())
 		} else {
-			fmt.Printf("\rNot found\n")
+			fmt.Printf("\rNothing found\n")
 		}
 	} else {
 		fmt.Printf("Hasher %s invalid: %q\n", *hashType, error)
