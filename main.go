@@ -25,17 +25,17 @@ func main() {
 			var hasherCreator, _ = hashs.HasherCreator(t)
 			fmt.Printf("One CPU (%s) hasher: ", t)
 			var timeOneCpu = bruteforce.BenchHasherOneCpu(hasherCreator)
-			fmt.Printf("%d kh/s\n", timeOneCpu/1000)
+			fmt.Printf("%s\n", formatBenchResult(timeOneCpu, "h/s"))
 
 			fmt.Printf("Multi CPU (%s) hasher: ", t)
 			var timeMultiCpu = bruteforce.BenchHasherMultiCpu(hasherCreator)
-			fmt.Printf("%d kh/s\n", timeMultiCpu/1000)
+			fmt.Printf("%s\n", formatBenchResult(timeMultiCpu, "h/s"))
 		}
 
 		fmt.Printf("One CPU word generator: ")
-		fmt.Printf("%d kw/s\n", bruteforce.BenchWorderOneCpu()/1000)
+		fmt.Printf("%s\n", formatBenchResult(bruteforce.BenchWorderOneCpu()/1000, "w/s"))
 		fmt.Printf("Multi CPU word generator: ")
-		fmt.Printf("%d kw/s\n", bruteforce.BenchWorderMultiCpu()/1000)
+		fmt.Printf("%s\n", formatBenchResult(bruteforce.BenchWorderMultiCpu()/1000, "w/s"))
 		os.Exit(0)
 	}
 
@@ -62,4 +62,14 @@ func main() {
 	} else {
 		fmt.Printf("Hasher %s invalid: %q\n", *hashType, error)
 	}
+}
+
+func formatBenchResult(number int, unit string) string {
+	if number < 1000 {
+		return fmt.Sprintf("%d %s", number, unit)
+	}
+	if number < 1000000 {
+		return fmt.Sprintf("%.2f k%s", float64(number) / 1000, unit)
+	}
+	return fmt.Sprintf("%.2f M%s", float64(number) / 1000000, unit)
 }

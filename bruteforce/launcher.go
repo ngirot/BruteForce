@@ -1,8 +1,6 @@
 package bruteforce
 
 import (
-	"bytes"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"github.com/ngirot/BruteForce/bruteforce/conf"
@@ -56,9 +54,9 @@ func displayValue(spinner display.Spinner, heart chan bool) func(string){
 }
 
 func testValue(hash string, hasher hashs.Hasher) func(string) bool {
-	var hashBytes, _ = hex.DecodeString(hash)
+	var hashBytes = hasher.DecodeInput(hash)
 	return func(data string) bool {
-		return bytes.Equal(hasher.Hash(data), hashBytes)
+		return hasher.Compare(hasher.Hash(data), hashBytes)
 	}
 }
 

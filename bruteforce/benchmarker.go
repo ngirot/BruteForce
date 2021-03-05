@@ -67,8 +67,9 @@ func actionLoop(action func(), oneDone func(), quit chan bool) {
 func getBuildActionFuncForHasher(hasherCreator func() hashs.Hasher) func() func() {
 	return func() func() {
 		var hasher = hasherCreator()
+		var referenceData = hasher.Example()
 		return func() {
-			hasher.Hash("1234567890")
+			hasher.Compare(hasher.Hash("1234567890"), referenceData)
 		}
 	}
 }

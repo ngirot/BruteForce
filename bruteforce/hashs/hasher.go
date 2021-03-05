@@ -6,7 +6,10 @@ import (
 )
 
 type Hasher interface {
+	Example() []byte
+	DecodeInput(data string) []byte
 	Hash(data string) []byte
+	Compare(transformedData []byte, referenceData []byte) bool
 	IsValid(data string) bool
 }
 
@@ -24,6 +27,6 @@ func hexToString(data []byte) string {
 }
 
 func isBase64(data string) bool {
-	var _,err = base64.StdEncoding.DecodeString(data)
+	var _, err = base64.StdEncoding.DecodeString(data)
 	return err == nil
 }
