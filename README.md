@@ -4,7 +4,7 @@ A simple brute force software written in GO
 ## Usage
 
 ```
-BruteForce --type [md5|sha256|sha512|sha1] --value <hash>
+BruteForce --type [md5|sha256|sha512|sha1|bcrypt] --value <hash>
 ```
 
 Example: 
