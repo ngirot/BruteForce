@@ -15,8 +15,8 @@ func NewHasherSha512() Hasher {
 	return &hasherSha512{sha512.New()}
 }
 
-func (h *hasherSha512) Example() []byte {
-	return h.Hash("1234567890")
+func (h *hasherSha512) Example() string {
+	return hex.EncodeToString(h.Hash("1234567890"))
 }
 
 func (h *hasherSha512) DecodeInput(data string) []byte {

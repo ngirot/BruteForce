@@ -12,9 +12,9 @@ func NewHasherBcrypt() Hasher {
 	return &hasherBcrypt{}
 }
 
-func (h *hasherBcrypt) Example() []byte {
+func (h *hasherBcrypt) Example() string {
 	var result, _ = bcrypt.GenerateFromPassword([]byte("1234567890"), 10)
-	return result
+	return string(result)
 }
 
 func (h *hasherBcrypt) DecodeInput(data string) []byte {

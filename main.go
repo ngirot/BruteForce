@@ -50,7 +50,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Printf("Start brute-forcing (%s)...\n", *hashType)
+	fmt.Printf("Start brute-forcing '%s' (%s)...\n", *value, *hashType)
 
 	var hashConf = conf.NewHash(*value, *hashType)
 	var wordConf = conf.NewWordConf(*dictionary, *alphabet, *saltBefore, *saltAfter)
@@ -66,7 +66,8 @@ func main() {
 			fmt.Printf("\rNothing found\n")
 		}
 	} else {
-		fmt.Printf("Hasher %s invalid: %q\n", *hashType, error)
+		fmt.Printf("Error initializing Hasher '%s':\n", *hashType)
+		fmt.Printf("%s\n", error)
 	}
 }
 

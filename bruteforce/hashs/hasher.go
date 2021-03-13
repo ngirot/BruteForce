@@ -6,7 +6,7 @@ import (
 )
 
 type Hasher interface {
-	Example() []byte
+	Example() string
 	DecodeInput(data string) []byte
 	Hash(data string) []byte
 	Compare(transformedData []byte, referenceData []byte) bool

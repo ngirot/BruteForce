@@ -12,8 +12,8 @@ import (
 func Launch(hash conf.HashConf, wordConf conf.WordConf) (string, error) {
 	var builder = new(TesterBuilder)
 
-	if !hashs.IsValidhash(hash) {
-		return "", errors.New("hash value '" + hash.Value + "' is not valid for type '" + hash.HashType + "'")
+	if !hashs.IsValidHash(hash) {
+		return "", errors.New("Hash value '" + hash.Value + "' is not valid for type '" + hash.HashType + "'\nExample of a valid hash : '"+hashs.ExampleHash(hash)+"'")
 	}
 
 	if builderFunc, error := buildTester(hash); error == nil {

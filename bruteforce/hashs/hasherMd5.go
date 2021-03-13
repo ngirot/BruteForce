@@ -15,8 +15,8 @@ func NewHasherMd5() Hasher {
 	return &hasherMd5{md5.New()}
 }
 
-func (h *hasherMd5) Example() []byte {
-	return h.Hash("1234567890")
+func (h *hasherMd5) Example() string {
+	return hex.EncodeToString(h.Hash("1234567890"))
 }
 
 func (h *hasherMd5) DecodeInput(data string) []byte {

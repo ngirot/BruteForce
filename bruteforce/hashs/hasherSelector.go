@@ -17,7 +17,7 @@ func HasherCreator(hashType string) (func() Hasher, error) {
 		return creator, nil
 	}
 
-	return nil, errors.New(hashType + " is not a valid hash type, must be one of " + strings.Join(AllHasherTypes(), ", "))
+	return nil, errors.New("'" + hashType + "' is not a valid hash type, must be one of: " + strings.Join(AllHasherTypes(), ", "))
 }
 
 func HasherBenchmarkDescription(hashType string) string {
@@ -41,11 +41,19 @@ func AllHasherTypes() []string {
 	return values
 }
 
-func IsValidhash(hash conf.HashConf) bool {
+func IsValidHash(hash conf.HashConf) bool {
 	if hasherCreator, e := HasherCreator(hash.HashType); e == nil {
 		return hasherCreator().IsValid(hash.Value)
 	} else {
 		return true
+	}
+}
+
+func ExampleHash(hash conf.HashConf) string {
+	if hasherCreator, e := HasherCreator(hash.HashType); e == nil {
+		return hasherCreator().Example()
+	} else {
+		return ""
 	}
 }
 
