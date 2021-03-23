@@ -29,6 +29,11 @@ func BenchWorderMultiCpu() int {
 }
 
 func bench(buildActionFunc func() func(), cpus int) int {
+	var preBuiltActionFunc = make([]func(), cpus)
+	for i := 0; i < cpus; i++ {
+		preBuiltActionFunc[i] = buildActionFunc()
+	}
+
 	var chrono = NewChrono()
 	chrono.Start()
 
@@ -39,7 +44,7 @@ func bench(buildActionFunc func() func(), cpus int) int {
 
 	var quit = make(chan bool)
 	for i := 0; i < cpus; i++ {
-		go actionLoop(buildActionFunc(), oneDone, quit)
+		go actionLoop(preBuiltActionFunc[i], oneDone, quit)
 	}
 
 	time.Sleep(time.Second * 5)
