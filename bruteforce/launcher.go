@@ -35,7 +35,7 @@ func buildTester(hash conf.HashConf) (func() Tester, error) {
 			var hasher = hasherCreator()
 			var tester = new(Tester)
 			tester.Notify = displayValue(spinner, heart)
-			tester.Test = testValue(hash.Value, hasher)
+			tester.Test = testValues(hash.Value, hasher)
 			return *tester
 		}, nil
 	} else {
@@ -53,10 +53,16 @@ func displayValue(spinner display.Spinner, heart chan bool) func(string){
 	}
 }
 
-func testValue(hash string, hasher hashs.Hasher) func(string) bool {
+func testValues(hash string, hasher hashs.Hasher) func([]string) int {
 	var hashBytes = hasher.DecodeInput(hash)
-	return func(data string) bool {
-		return hasher.Compare(hasher.Hash(data), hashBytes)
+	return func(datas []string) int {
+		digests := hasher.Hash(datas)
+		for i, digest := range digests {
+			if hasher.Compare(digest, hashBytes) {
+				return i
+			}
+		}
+		return -1
 	}
 }
 

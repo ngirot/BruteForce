@@ -16,7 +16,7 @@ func NewHasherSha512() Hasher {
 }
 
 func (h *hasherSha512) Example() string {
-	return hex.EncodeToString(h.Hash("1234567890"))
+	return hex.EncodeToString(h.Hash([]string{"1234567890"})[0])
 }
 
 func (h *hasherSha512) DecodeInput(data string) []byte {
@@ -24,8 +24,12 @@ func (h *hasherSha512) DecodeInput(data string) []byte {
 	return result
 }
 
-func (h *hasherSha512) Hash(data string) []byte {
-	return h.binaryHash(h.convert(data))
+func (h *hasherSha512) Hash(datas []string) [][]byte {
+	var result = make([][]byte, len(datas))
+	for i, value := range datas {
+		result[i] = h.binaryHash(h.convert(value))
+	}
+	return result
 }
 
 func (h *hasherSha512) IsValid(data string) bool {

@@ -8,7 +8,7 @@ import (
 type Hasher interface {
 	Example() string
 	DecodeInput(data string) []byte
-	Hash(data string) []byte
+	Hash(datas []string) [][]byte
 	Compare(transformedData []byte, referenceData []byte) bool
 	IsValid(data string) bool
 }
@@ -18,8 +18,8 @@ func genericBase64Validator(hasher Hasher, data string) bool {
 		return false
 	}
 
-	var hexData = hasher.Hash("valid")
-	return len(hexToString(hexData)) == len(data)
+	var hexData = hasher.Hash([]string{"valid"})
+	return len(hexToString(hexData[0])) == len(data)
 }
 
 func hexToString(data []byte) string {

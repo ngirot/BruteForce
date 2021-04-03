@@ -74,7 +74,7 @@ func getBuildActionFuncForHasher(hasherCreator func() hashs.Hasher) func() func(
 		var hasher = hasherCreator()
 		var referenceData = hasher.Example()
 		return func() {
-			hasher.Compare(hasher.Hash("1234567890"), hasher.DecodeInput(referenceData))
+			hasher.Compare(hasher.Hash([]string{"1234567890"})[0], hasher.DecodeInput(referenceData))
 		}
 	}
 }

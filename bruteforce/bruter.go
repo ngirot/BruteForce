@@ -5,7 +5,7 @@ import (
 	"github.com/ngirot/BruteForce/bruteforce/words"
 )
 
-type tester func(data string) bool
+type tester func(data []string) int
 type status func(data string)
 
 func TestAllStrings(builder TesterBuilder, wordConf conf.WordConf) string {
@@ -21,10 +21,16 @@ func TestAllStrings(builder TesterBuilder, wordConf conf.WordConf) string {
 	return waitForResult(resultChannel, numberOfParallelRoutines)
 }
 
-func isHash(word string, saltBefore string, saltAfter string, test tester, notifyTesting status) string {
-	notifyTesting(word)
-	if test(saltBefore + word + saltAfter) {
-		return word
+func isHash(words []string, saltBefore string, saltAfter string, test tester, notifyTesting status) string {
+	notifyTesting(words[0])
+	var saltedWords = make([]string, len(words))
+	copy(saltedWords, words)
+	for i, _ := range words {
+		saltedWords[i] = saltBefore + words[i] + saltAfter
+	}
+	var result = test(saltedWords)
+	if result != -1 {
+		return words[result]
 	} else {
 		return ""
 	}
@@ -34,14 +40,20 @@ func wordConsumer(worder words.Worder, builder TesterBuilder, saltBefore string,
 	var tester = builder.Build()
 
 	for {
-		var word = worder.Next()
-		if word == "" {
-			r <- ""
-			return
+		// var words = make([]string, 1000000)
+		var words = make([]string, 1)
+		for i, _ := range words {
+			var word = worder.Next()
+			if word == "" {
+				r <- ""
+				return
+			}
+			words[i] = word
 		}
 
-		if isHash(word, saltBefore, saltAfter, tester.Test, tester.Notify) != "" {
-			r <- word
+		result := isHash(words, saltBefore, saltAfter, tester.Test, tester.Notify)
+		if result != "" {
+			r <- result
 		}
 	}
 }

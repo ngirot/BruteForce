@@ -6,5 +6,5 @@ type TesterBuilder struct {
 
 type Tester struct {
 	Notify func(data string)
-	Test   func(data string) bool
+	Test   func(data []string) int
 }
