@@ -7,22 +7,30 @@ import (
 
 func TestHasherMd5_Hash_WithSimpleWord(t *testing.T) {
 	var hasher = NewHasherMd5()
-	testHashMd5(t, hasher, "test", "098f6bcd4621d373cade4e832627b4f6")
+	testHashMd5(t, hasher, []string{"test"}, []string{"098f6bcd4621d373cade4e832627b4f6"})
+}
+
+func TestHasherMd5_Hash_WithMultipleWord(t *testing.T) {
+	var hasher = NewHasherMd5()
+	testHashMd5(t, hasher,
+		[]string{"test1", "test2"},
+		[]string{"5a105e8b9d40e1329780d62ea2265d8a", "ad0234829205b9033196ba818f7a872b"})
+
 }
 
 func TestHasherMd5_Hash_WithUnicodeWord(t *testing.T) {
 	var hasher = NewHasherMd5()
-	testHashMd5(t, hasher, "ありがとう &!ç", "9ebcc60effbdef7c4d101a7ced1c6b01")
+	testHashMd5(t, hasher, []string{"ありがとう &!ç"}, []string{"9ebcc60effbdef7c4d101a7ced1c6b01"})
 }
 
 func TestHasherMd5_Hash_ConsistencyWithSameHash(t *testing.T) {
 	var hasher = NewHasherMd5()
 	var testString = "test"
 
-	var firstResult = md5ToString(hasher.Hash(testString))
+	var firstResult = md5ToString(hasher.Hash([]string{testString})[0])
 
-	for i:=0 ; i<10 ; i++ {
-		var anotherResult = md5ToString(hasher.Hash(testString))
+	for i := 0; i < 10; i++ {
+		var anotherResult = md5ToString(hasher.Hash([]string{testString})[0])
 		if anotherResult != firstResult {
 			t.Errorf("Hasher is not consistent : the first value was '%s', but it another all returned '%s'", firstResult, anotherResult)
 		}
@@ -56,13 +64,17 @@ func TestHasherMd5_IsValid_WithAValueWithNotvalidBase64Char(t *testing.T) {
 	}
 }
 
-func testHashMd5(t *testing.T, hasher Hasher, value string, expectedHash string) {
-	var actual = md5ToString(hasher.Hash(value))
-	if actual != expectedHash {
-		t.Errorf("Hash value for string '%s' should be '%s' but was '%s'", value, expectedHash, actual)
+func testHashMd5(t *testing.T, hasher Hasher, values []string, expectedHashs []string) {
+	var actuals = hasher.Hash(values)
+
+	for i, _ := range values {
+		var actual = md5ToString(actuals[i])
+		if actual != expectedHashs[i] {
+			t.Errorf("Hash value [position %d] for string '%s' should be '%s' but was '%s'", i, values[i], expectedHashs[i], actual)
+		}
 	}
 }
 
-func md5ToString(data [] byte) string {
+func md5ToString(data []byte) string {
 	return hex.EncodeToString(data)
 }

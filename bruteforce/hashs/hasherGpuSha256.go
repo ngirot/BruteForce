@@ -29,34 +29,8 @@ func NewHasherGpuSha256() Hasher {
 	return nil
 }
 
-func buildI(d *blackcl.Device, data []byte) (*blackcl.Bytes, error) {
-	v, err := d.NewBytes(len(data))
-	if err != nil {
-		panic("could not allocate buffer")
-	}
-
-	err = <-v.Copy(data)
-	if err != nil {
-		panic("could not copy data to buffer")
-	}
-	return v, err
-}
-
-func buildI2(d *blackcl.Device, data []uint32) (*blackcl.Uint32, error) {
-	v, err := d.NewUint32(len(data))
-	if err != nil {
-		panic("could not allocate buffer")
-	}
-
-	err = <-v.Copy(data)
-	if err != nil {
-		panic("could not copy data to buffer")
-	}
-	return v, err
-}
-
 func (h *hasherGpuSha256) Example() string {
-	return hex.EncodeToString(h.Hash("1234567890"))
+	return hex.EncodeToString(h.Hash([]string{"1234567890"})[0])
 }
 
 func (h *hasherGpuSha256) DecodeInput(data string) []byte {
@@ -64,9 +38,7 @@ func (h *hasherGpuSha256) DecodeInput(data string) []byte {
 	return result
 }
 
-func (h *hasherGpuSha256) Hash(data string) []byte {
-	var datas = []string{data}
-
+func (h *hasherGpuSha256) Hash(datas []string) [][]byte {
 	var sizeInput = make([]byte, len(datas)*4+4)
 	var encoded = make([][]byte, len(datas))
 	var sumEncoded = 0
@@ -106,7 +78,7 @@ func (h *hasherGpuSha256) Hash(data string) []byte {
 
 	//Add program source to device, get kernel
 	//run kernel (global work size 16 and local work size 1)
-	err := <-h.kernel.Global(1).Local(1).Run(infos, key, output)
+	err := <-h.kernel.Global(len(datas)).Local(1).Run(infos, key, output)
 	if err != nil {
 		panic("could not run kernel")
 	}
@@ -134,7 +106,7 @@ func (h *hasherGpuSha256) Hash(data string) []byte {
 
 	// fmt.Printf("Result1 => %s\n", hexToString(digests[0]))
 	// fmt.Printf("Result2 => %s\n", hexToString(digests[1]))
-	return digests[0]
+	return digests
 }
 
 func (h *hasherGpuSha256) IsValid(data string) bool {
@@ -147,6 +119,32 @@ func (h *hasherGpuSha256) Compare(transformedData []byte, referenceData []byte) 
 
 func (h *hasherGpuSha256) convert(s string) []byte {
 	return []byte(s)
+}
+
+func buildI(d *blackcl.Device, data []byte) (*blackcl.Bytes, error) {
+	v, err := d.NewBytes(len(data))
+	if err != nil {
+		panic("could not allocate buffer")
+	}
+
+	err = <-v.Copy(data)
+	if err != nil {
+		panic("could not copy data to buffer")
+	}
+	return v, err
+}
+
+func buildI2(d *blackcl.Device, data []uint32) (*blackcl.Uint32, error) {
+	v, err := d.NewUint32(len(data))
+	if err != nil {
+		panic("could not allocate buffer")
+	}
+
+	err = <-v.Copy(data)
+	if err != nil {
+		panic("could not copy data to buffer")
+	}
+	return v, err
 }
 
 // https://github.com/Fruneng/opencl_sha_al_im

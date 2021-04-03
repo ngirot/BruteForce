@@ -21,8 +21,8 @@ func (h *hasherBcrypt) DecodeInput(data string) []byte {
 	return []byte(data)
 }
 
-func (h *hasherBcrypt) Hash(data string) []byte {
-	return []byte(data)
+func (h *hasherBcrypt) Hash(datas []string) [][]byte {
+	return [][]byte{[]byte(datas[0])}
 }
 
 func (h *hasherBcrypt) IsValid(data string) bool {
