@@ -17,12 +17,16 @@ func main() {
 	var hashType = flag.String("type", "sha256", "The hash type")
 	var saltBefore = flag.String("salt-before", "", "The salt added to the end of the generated word")
 	var saltAfter = flag.String("salt-after", "", "The salt added to the beginning of the generated word")
+	var gpu = flag.Bool("gpu", false, "Use GPU instead of CPU for hash computation")
+
 	flag.Parse()
+
+	var processingUnitConfiguration = conf.NewProcessingUnitConfiguration(*gpu)
 
 	if *bench {
 		var types = hashs.AllHasherTypes()
 		for _, t := range types {
-			var hasherCreator, _ = hashs.HasherCreator(t)
+			var hasherCreator, _ = hashs.HasherCreator(t, processingUnitConfiguration)
 			var description = hashs.HasherBenchmarkDescription(t)
 
 			fmt.Printf("=== %s ===\n", description)
@@ -57,7 +61,7 @@ func main() {
 
 	var chrono = bruteforce.NewChrono()
 	chrono.Start()
-	if result, error := bruteforce.Launch(hashConf, wordConf); error == nil {
+	if result, error := bruteforce.Launch(hashConf, wordConf, processingUnitConfiguration); error == nil {
 		chrono.End()
 
 		if result != "" {
