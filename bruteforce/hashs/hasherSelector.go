@@ -7,8 +7,8 @@ import (
 	"strings"
 )
 
-func HasherCreator(hashType string) (func() Hasher, error) {
-	var hasherMap = buildHasherMap()
+func HasherCreator(hashType string, processingUnitConfiguration conf.ProcessingUnitConfiguration) (func() Hasher, error) {
+	var hasherMap = buildHasherMap(processingUnitConfiguration.Type())
 
 	if description, present := hasherMap[hashType]; present {
 		var creator = func() Hasher {
@@ -21,7 +21,7 @@ func HasherCreator(hashType string) (func() Hasher, error) {
 }
 
 func HasherBenchmarkDescription(hashType string) string {
-	var hasherMap = buildHasherMap()
+	var hasherMap = buildHasherMap(conf.Cpu)
 	if description, present := hasherMap[hashType]; present {
 		return description.benchDescription
 	}
@@ -32,7 +32,7 @@ func HasherBenchmarkDescription(hashType string) string {
 func AllHasherTypes() []string {
 	var values []string
 
-	for k := range buildHasherMap() {
+	for k := range buildHasherMap(conf.Cpu) {
 		values = append(values, k)
 	}
 
@@ -42,7 +42,7 @@ func AllHasherTypes() []string {
 }
 
 func IsValidHash(hash conf.HashConf) bool {
-	if hasherCreator, e := HasherCreator(hash.HashType); e == nil {
+	if hasherCreator, e := HasherCreator(hash.HashType, conf.NewProcessingUnitConfiguration(false)); e == nil {
 		return hasherCreator().IsValid(hash.Value)
 	} else {
 		return true
@@ -50,19 +50,25 @@ func IsValidHash(hash conf.HashConf) bool {
 }
 
 func ExampleHash(hash conf.HashConf) string {
-	if hasherCreator, e := HasherCreator(hash.HashType); e == nil {
+	if hasherCreator, e := HasherCreator(hash.HashType, conf.NewProcessingUnitConfiguration(false)); e == nil {
 		return hasherCreator().Example()
 	} else {
 		return ""
 	}
 }
 
-func buildHasherMap() map[string]hasherInfos {
+func buildHasherMap(processingUnit conf.ProcessingUnit) map[string]hasherInfos {
 	var hasherMap = make(map[string]hasherInfos)
-	hasherMap["sha256"] = NewHasherInfos("SHA256", func() Hasher { return NewHasherSha256() })
-	hasherMap["md5"] = NewHasherInfos("MD5", func() Hasher { return NewHasherMd5() })
-	hasherMap["sha1"] = NewHasherInfos("SHA1", func() Hasher { return NewHasherSha1() })
-	hasherMap["sha512"] = NewHasherInfos("SHA512", func() Hasher { return NewHasherSha512() })
-	hasherMap["bcrypt"] = NewHasherInfos("bcrypt (cost 10)", func() Hasher { return NewHasherBcrypt() })
+
+	if processingUnit == conf.Gpu {
+		hasherMap["sha256"] = NewHasherInfos("SHA256", func() Hasher { return NewHasherGpuSha256() })
+	} else {
+		hasherMap["sha256"] = NewHasherInfos("SHA256", func() Hasher { return NewHasherSha256() })
+		hasherMap["md5"] = NewHasherInfos("MD5", func() Hasher { return NewHasherMd5() })
+		hasherMap["sha1"] = NewHasherInfos("SHA1", func() Hasher { return NewHasherSha1() })
+		hasherMap["sha512"] = NewHasherInfos("SHA512", func() Hasher { return NewHasherSha512() })
+		hasherMap["bcrypt"] = NewHasherInfos("bcrypt (cost 10)", func() Hasher { return NewHasherBcrypt() })
+	}
+
 	return hasherMap
 }

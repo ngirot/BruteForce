@@ -9,23 +9,23 @@ import (
 	"time"
 )
 
-func Launch(hash conf.HashConf, wordConf conf.WordConf) (string, error) {
+func Launch(hash conf.HashConf, wordConf conf.WordConf, processingUnitConfiguration conf.ProcessingUnitConfiguration) (string, error) {
 	var builder = new(TesterBuilder)
 
 	if !hashs.IsValidHash(hash) {
 		return "", errors.New("Hash value '" + hash.Value + "' is not valid for type '" + hash.HashType + "'\nExample of a valid hash : '"+hashs.ExampleHash(hash)+"'")
 	}
 
-	if builderFunc, error := buildTester(hash); error == nil {
+	if builderFunc, error := buildTester(hash, processingUnitConfiguration); error == nil {
 		builder.Build = builderFunc
-		return TestAllStrings(*builder, wordConf), nil
+		return TestAllStrings(*builder, wordConf, processingUnitConfiguration), nil
 	} else {
 		return "", error
 	}
 }
 
-func buildTester(hash conf.HashConf) (func() Tester, error) {
-	if hasherCreator, e := hashs.HasherCreator(hash.HashType); e == nil {
+func buildTester(hash conf.HashConf, processingUnitConfiguration conf.ProcessingUnitConfiguration) (func() Tester, error) {
+	if hasherCreator, e := hashs.HasherCreator(hash.HashType, processingUnitConfiguration); e == nil {
 		var heart = make(chan bool)
 		go heartBeat(heart)
 

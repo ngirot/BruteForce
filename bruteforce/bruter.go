@@ -8,14 +8,14 @@ import (
 type tester func(data []string) int
 type status func(data string)
 
-func TestAllStrings(builder TesterBuilder, wordConf conf.WordConf) string {
+func TestAllStrings(builder TesterBuilder, wordConf conf.WordConf, processingUnitConfiguration conf.ProcessingUnitConfiguration) string {
 
 	var resultChannel = make(chan string)
-	var numberOfParallelRoutines = conf.BestNumberOfGoRoutine()
+	var numberOfParallelRoutines = processingUnitConfiguration.NumberOfGoRoutines()
 
 	for i := 0; i < numberOfParallelRoutines; i++ {
 		var worder = words.CreateWorder(wordConf.Alphabet, wordConf.Dictionary, numberOfParallelRoutines, i)
-		go wordConsumer(worder, builder, wordConf.SaltBefore, wordConf.SaltAfter, resultChannel)
+		go wordConsumer(worder, builder, wordConf.SaltBefore, wordConf.SaltAfter, processingUnitConfiguration.NumberOfWordsPerIteration(), resultChannel)
 	}
 
 	return waitForResult(resultChannel, numberOfParallelRoutines)
@@ -36,12 +36,11 @@ func isHash(words []string, saltBefore string, saltAfter string, test tester, no
 	}
 }
 
-func wordConsumer(worder words.Worder, builder TesterBuilder, saltBefore string, saltAfter string, r chan string) {
+func wordConsumer(worder words.Worder, builder TesterBuilder, saltBefore string,saltAfter string, numberOfWordsPerIteration int, r chan string) {
 	var tester = builder.Build()
 
 	for {
-		// var words = make([]string, 1000000)
-		var words = make([]string, 1)
+		var words = make([]string, numberOfWordsPerIteration)
 		for i, _ := range words {
 			var word = worder.Next()
 			if word == "" {
