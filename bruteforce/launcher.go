@@ -18,7 +18,11 @@ func Launch(hash conf.HashConf, wordConf conf.WordConf, processingUnitConfigurat
 
 	if builderFunc, error := buildTester(hash, processingUnitConfiguration); error == nil {
 		builder.Build = builderFunc
-		return TestAllStrings(*builder, wordConf, processingUnitConfiguration), nil
+		if processingUnitConfiguration.Type() == conf.Gpu {
+			return TestAllStringsGpu(*builder, wordConf, processingUnitConfiguration), nil
+		} else {
+			return TestAllStringsCpu(*builder, wordConf, processingUnitConfiguration), nil
+		}
 	} else {
 		return "", error
 	}
