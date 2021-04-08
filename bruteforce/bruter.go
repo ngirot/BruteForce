@@ -8,7 +8,40 @@ import (
 type tester func(data []string) int
 type status func(data string)
 
-func TestAllStrings(builder TesterBuilder, wordConf conf.WordConf, processingUnitConfiguration conf.ProcessingUnitConfiguration) string {
+func TestAllStringsGpu(builder TesterBuilder, wordConf conf.WordConf, processingUnitConfiguration conf.ProcessingUnitConfiguration) string {
+	var worder = words.CreateWorder(wordConf.Alphabet, wordConf.Dictionary, 1, 0)
+
+	var wordChannel = make(chan []string)
+	var resultChannel = make(chan string)
+	go fillWords(worder, processingUnitConfiguration, wordChannel)
+	go testWords(builder, wordConf, wordChannel, resultChannel)
+
+	return waitForResult(resultChannel, 1)
+}
+
+func fillWords(worder words.Worder, processingUnitConfiguration conf.ProcessingUnitConfiguration, wordChan chan []string) {
+	for {
+		var words = make([]string, processingUnitConfiguration.NumberOfWordsPerIteration())
+		for i, _ := range words {
+			var word = worder.Next()
+			words[i] = word
+		}
+
+		wordChan <- words
+	}
+}
+
+func testWords(builder TesterBuilder, wordConf conf.WordConf, wordChan chan []string, resultChan chan string) {
+	var tester = builder.Build()
+	for words := range wordChan {
+		result := isHash(words, wordConf.SaltBefore, wordConf.SaltAfter, tester.Test, tester.Notify)
+		if result != "" {
+			resultChan <- result
+		}
+	}
+}
+
+func TestAllStringsCpu(builder TesterBuilder, wordConf conf.WordConf, processingUnitConfiguration conf.ProcessingUnitConfiguration) string {
 
 	var resultChannel = make(chan string)
 	var numberOfParallelRoutines = processingUnitConfiguration.NumberOfGoRoutines()
@@ -36,7 +69,7 @@ func isHash(words []string, saltBefore string, saltAfter string, test tester, no
 	}
 }
 
-func wordConsumer(worder words.Worder, builder TesterBuilder, saltBefore string,saltAfter string, numberOfWordsPerIteration int, r chan string) {
+func wordConsumer(worder words.Worder, builder TesterBuilder, saltBefore string, saltAfter string, numberOfWordsPerIteration int, r chan string) {
 	var tester = builder.Build()
 
 	for {
