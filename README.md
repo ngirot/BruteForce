@@ -58,3 +58,16 @@ Found: zzzz in 3 s
 Start brute-forcing (sha1)...
 Found: zzzz in 3 s
 ```
+
+### Gpu support (beta)
+If you want to build with GPU support, you must use the command `go build -tags opencl`.
+
+Currently, only SHA-256 is supported with this option, and only for Windows and Linux builds.
+
+Anf if you want to use GPU to compute hashs, just use the GPU parameter
+Example:
+```
+./BruteForce --type sha256 --value 9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08 --gpu
+Start brute-forcing '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08' (sha256)...
+Found: test in 9 s
+```

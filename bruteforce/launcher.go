@@ -6,6 +6,7 @@ import (
 	"github.com/ngirot/BruteForce/bruteforce/conf"
 	"github.com/ngirot/BruteForce/bruteforce/display"
 	"github.com/ngirot/BruteForce/bruteforce/hashs"
+	"github.com/ngirot/BruteForce/bruteforce/hashs/hashers"
 	"time"
 )
 
@@ -57,7 +58,7 @@ func displayValue(spinner display.Spinner, heart chan bool) func(string){
 	}
 }
 
-func testValues(hash string, hasher hashs.Hasher) func([]string) int {
+func testValues(hash string, hasher hashers.Hasher) func([]string) int {
 	var hashBytes = hasher.DecodeInput(hash)
 	return func(datas []string) int {
 		digests := hasher.Hash(datas)
