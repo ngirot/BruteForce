@@ -3,16 +3,21 @@ package hashs
 import (
 	"errors"
 	"github.com/ngirot/BruteForce/bruteforce/conf"
+	"github.com/ngirot/BruteForce/bruteforce/hashs/hashers"
+	"github.com/ngirot/BruteForce/bruteforce/hashs/selector"
 	"sort"
 	"strings"
 )
 
-func HasherCreator(hashType string, processingUnitConfiguration conf.ProcessingUnitConfiguration) (func() Hasher, error) {
-	var hasherMap = buildHasherMap(processingUnitConfiguration.Type())
+func HasherCreator(hashType string, processingUnitConfiguration conf.ProcessingUnitConfiguration) (func() hashers.Hasher, error) {
+	var hasherMap, err = buildHasherMap(processingUnitConfiguration.Type())
+	if err != nil {
+		return nil, err
+	}
 
 	if description, present := hasherMap[hashType]; present {
-		var creator = func() Hasher {
-			return description.builder()
+		var creator = func() hashers.Hasher {
+			return description.Build()
 		}
 		return creator, nil
 	}
@@ -21,9 +26,9 @@ func HasherCreator(hashType string, processingUnitConfiguration conf.ProcessingU
 }
 
 func HasherBenchmarkDescription(hashType string) string {
-	var hasherMap = buildHasherMap(conf.Cpu)
+	var hasherMap, _ = buildHasherMap(conf.Cpu)
 	if description, present := hasherMap[hashType]; present {
-		return description.benchDescription
+		return description.Description()
 	}
 
 	return hashType
@@ -32,7 +37,8 @@ func HasherBenchmarkDescription(hashType string) string {
 func AllHasherTypes() []string {
 	var values []string
 
-	for k := range buildHasherMap(conf.Cpu) {
+	hasherMap, _ := buildHasherMap(conf.Cpu)
+	for k := range hasherMap {
 		values = append(values, k)
 	}
 
@@ -57,18 +63,10 @@ func ExampleHash(hash conf.HashConf) string {
 	}
 }
 
-func buildHasherMap(processingUnit conf.ProcessingUnit) map[string]hasherInfos {
-	var hasherMap = make(map[string]hasherInfos)
-
+func buildHasherMap(processingUnit conf.ProcessingUnit) (map[string]selector.HasherInfos, error) {
 	if processingUnit == conf.Gpu {
-		hasherMap["sha256"] = NewHasherInfos("SHA256", func() Hasher { return NewHasherGpuSha256() })
+		return selector.BuildGpuHasherMap()
 	} else {
-		hasherMap["sha256"] = NewHasherInfos("SHA256", func() Hasher { return NewHasherSha256() })
-		hasherMap["md5"] = NewHasherInfos("MD5", func() Hasher { return NewHasherMd5() })
-		hasherMap["sha1"] = NewHasherInfos("SHA1", func() Hasher { return NewHasherSha1() })
-		hasherMap["sha512"] = NewHasherInfos("SHA512", func() Hasher { return NewHasherSha512() })
-		hasherMap["bcrypt"] = NewHasherInfos("bcrypt (cost 10)", func() Hasher { return NewHasherBcrypt() })
+		return selector.BuildCpuHasherMap(), nil
 	}
-
-	return hasherMap
 }

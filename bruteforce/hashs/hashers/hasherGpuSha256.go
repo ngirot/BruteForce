@@ -1,4 +1,6 @@
-package hashs
+// +build opencl
+
+package hashers
 
 import (
 	"bytes"

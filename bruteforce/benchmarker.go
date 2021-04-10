@@ -2,18 +2,18 @@ package bruteforce
 
 import (
 	"github.com/ngirot/BruteForce/bruteforce/conf"
-	"github.com/ngirot/BruteForce/bruteforce/hashs"
+	"github.com/ngirot/BruteForce/bruteforce/hashs/hashers"
 	"github.com/ngirot/BruteForce/bruteforce/words"
 	"math"
 	"time"
 )
 
-func BenchHasherOneCpu(hasherCreator func() hashs.Hasher) int {
+func BenchHasherOneCpu(hasherCreator func() hashers.Hasher) int {
 	var buildActionFunc = getBuildActionFuncForHasher(hasherCreator)
 	return bench(buildActionFunc, 1)
 }
 
-func BenchHasherMultiCpu(hasherCreator func() hashs.Hasher) int {
+func BenchHasherMultiCpu(hasherCreator func() hashers.Hasher) int {
 	var buildActionFunc = getBuildActionFuncForHasher(hasherCreator)
 	return bench(buildActionFunc, conf.BestNumberOfGoRoutine())
 }
@@ -69,7 +69,7 @@ func actionLoop(action func(), oneDone func(), quit chan bool) {
 		}
 	}
 }
-func getBuildActionFuncForHasher(hasherCreator func() hashs.Hasher) func() func() {
+func getBuildActionFuncForHasher(hasherCreator func() hashers.Hasher) func() func() {
 	return func() func() {
 		var hasher = hasherCreator()
 		var referenceData = hasher.Example()

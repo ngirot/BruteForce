@@ -1,30 +1,30 @@
-package hashs
+package hashers
 
 import (
 	"bytes"
-	"crypto/sha1"
+	"crypto/md5"
 	"encoding/hex"
 	"hash"
 )
 
-type hasherSha1 struct {
+type hasherMd5 struct {
 	cache hash.Hash
 }
 
-func NewHasherSha1() Hasher {
-	return &hasherSha1{sha1.New()}
+func NewHasherMd5() Hasher {
+	return &hasherMd5{md5.New()}
 }
 
-func (h *hasherSha1) Example() string {
+func (h *hasherMd5) Example() string {
 	return hex.EncodeToString(h.Hash([]string{"1234567890"})[0])
 }
 
-func (h *hasherSha1) DecodeInput(data string) []byte {
+func (h *hasherMd5) DecodeInput(data string) []byte {
 	var result, _ = hex.DecodeString(data)
 	return result
 }
 
-func (h *hasherSha1) Hash(datas []string) [][]byte {
+func (h *hasherMd5) Hash(datas []string) [][]byte {
 	var result = make([][]byte, len(datas))
 	for i, value := range datas {
 		result[i] = h.binaryHash(h.convert(value))
@@ -32,20 +32,20 @@ func (h *hasherSha1) Hash(datas []string) [][]byte {
 	return result
 }
 
-func (h *hasherSha1) IsValid(data string) bool {
+func (h *hasherMd5) IsValid(data string) bool {
 	return genericBase64Validator(h, data)
 }
 
-func (h *hasherSha1) Compare(transformedData []byte, referenceData []byte) bool {
+func (h *hasherMd5) Compare(transformedData []byte, referenceData []byte) bool {
 	return bytes.Equal(transformedData, referenceData)
 }
 
-func (h *hasherSha1) binaryHash(data []byte) []byte {
+func (h *hasherMd5) binaryHash(data []byte) []byte {
 	h.cache.Reset()
 	h.cache.Write([]byte(data))
 	return h.cache.Sum(nil)
 }
 
-func (h *hasherSha1) convert(s string) []byte {
+func (h *hasherMd5) convert(s string) []byte {
 	return []byte(s)
 }

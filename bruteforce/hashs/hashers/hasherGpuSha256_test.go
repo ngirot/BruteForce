@@ -1,4 +1,6 @@
-package hashs
+// +build opencl
+
+package hashers
 
 import (
 	"encoding/hex"
@@ -68,7 +70,7 @@ func testHashGpuSha256(t *testing.T, hasher Hasher, values []string, expectedHas
 	var actuals = hasher.Hash(values)
 
 	for i, _ := range values {
-		var actual = sha256ToString(actuals[i])
+		var actual = gpuSha256ToString(actuals[i])
 		if actual != expectedHashs[i] {
 			t.Errorf("Hash value [position %d] for string '%s' should be '%s' but was '%s'", i, values[i], expectedHashs[i], actual)
 		}

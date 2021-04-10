@@ -1,4 +1,4 @@
-package hashs
+package hashers
 
 import (
 	"bytes"
