@@ -22,18 +22,31 @@ func TestAllStringsGpu(builder TesterBuilder, wordConf conf.WordConf, processing
 func fillWords(worder words.Worder, processingUnitConfiguration conf.ProcessingUnitConfiguration, wordChan chan []string) {
 	for {
 		var words = make([]string, processingUnitConfiguration.NumberOfWordsPerIteration())
+		var size = 0
 		for i, _ := range words {
 			var word = worder.Next()
-			words[i] = word
+			if word != "" {
+				words[i] = word
+				size++
+			} else {
+				break
+			}
 		}
 
-		wordChan <- words
+		if size == 0 {
+			wordChan <- []string{}
+		} else {
+			wordChan <- words[0:size]
+		}
 	}
 }
 
 func testWords(builder TesterBuilder, wordConf conf.WordConf, wordChan chan []string, resultChan chan string) {
 	var tester = builder.Build()
 	for words := range wordChan {
+		if len(words) == 0 {
+			resultChan <- ""
+		}
 		result := isHash(words, wordConf.SaltBefore, wordConf.SaltAfter, tester.Test, tester.Notify)
 		if result != "" {
 			resultChan <- result
