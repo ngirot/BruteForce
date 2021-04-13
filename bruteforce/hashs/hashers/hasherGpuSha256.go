@@ -6,21 +6,18 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/hex"
-	"fmt"
 	"gitlab.com/ngirot/blackcl"
 )
 
 type hasherGpuSha256 struct {
-	device *blackcl.Device
-	kernel *blackcl.Kernel
+	device     *blackcl.Device
+	kernel     *blackcl.Kernel
 	endianness binary.ByteOrder
 }
 
 func NewHasherGpuSha256() Hasher {
 	gpus, err := blackcl.GetDevices(blackcl.DeviceTypeGPU)
-	if err != nil {
-		fmt.Printf("No opencl device %s\n", err)
-	} else {
+	if err == nil {
 		for _, device := range gpus {
 			device.AddProgram(kernelSourceImport)
 			kernel := device.Kernel("sha256_crypt_kernel")
@@ -28,7 +25,7 @@ func NewHasherGpuSha256() Hasher {
 			var bigEndianResult = hashWithGpu(device, kernel, binary.BigEndian, []string{"test"})[0]
 
 			var endianness binary.ByteOrder = binary.LittleEndian
-			if  hex.EncodeToString(bigEndianResult) == "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08" {
+			if hex.EncodeToString(bigEndianResult) == "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08" {
 				endianness = binary.BigEndian
 			}
 
