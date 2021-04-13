@@ -13,6 +13,7 @@ import (
 type hasherGpuSha256 struct {
 	device *blackcl.Device
 	kernel *blackcl.Kernel
+	endianness binary.ByteOrder
 }
 
 func NewHasherGpuSha256() Hasher {
@@ -24,7 +25,14 @@ func NewHasherGpuSha256() Hasher {
 			device.AddProgram(kernelSourceImport)
 			kernel := device.Kernel("sha256_crypt_kernel")
 
-			return &hasherGpuSha256{device, kernel}
+			var bigEndianResult = hashWithGpu(device, kernel, binary.BigEndian, []string{"test"})[0]
+
+			var endianness binary.ByteOrder = binary.LittleEndian
+			if  hex.EncodeToString(bigEndianResult) == "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08" {
+				endianness = binary.BigEndian
+			}
+
+			return &hasherGpuSha256{device, kernel, endianness}
 		}
 	}
 
@@ -41,74 +49,7 @@ func (h *hasherGpuSha256) DecodeInput(data string) []byte {
 }
 
 func (h *hasherGpuSha256) Hash(datas []string) [][]byte {
-	var sizeInput = make([]byte, len(datas)*4+4)
-	var encoded = make([][]byte, len(datas))
-	var sumEncoded = 0
-	copy(sizeInput[:4], []byte{0, 0, 0, 0})
-
-	var previous = uint32(0)
-	for i, s := range datas {
-		/// Addresses
-		var address = uint32(len(s)) + previous
-		var asByte = make([]byte, 4)
-		binary.LittleEndian.PutUint32(asByte, address)
-		copy(sizeInput[i*4+4:i*4+8], asByte)
-		previous = address
-
-		// Encoding
-		var converted = h.convert(s)
-		encoded[i] = converted
-		sumEncoded += len(converted)
-	}
-
-	var textInput = make([]byte, sumEncoded)
-	var position = 0
-	for _, s := range encoded {
-		var endPosition = position + len(s)
-		copy(textInput[position:endPosition], s)
-		position = endPosition
-	}
-
-	infos, _ := buildI(h.device, sizeInput)
-	defer infos.Release()
-
-	key, _ := buildI(h.device, textInput)
-	defer key.Release()
-
-	output, _ := buildI2(h.device, make([]uint32, 32*len(datas)))
-	defer output.Release()
-
-	//Add program source to device, get kernel
-	//run kernel (global work size 16 and local work size 1)
-	err := <-h.kernel.Global(len(datas)).Local(1).Run(infos, key, output)
-	if err != nil {
-		panic("could not run kernel")
-	}
-
-	//Get data from vector
-	newData, err := output.Data()
-	if err != nil {
-		panic("could not get data from buffer")
-	}
-
-	var digests = make([][]byte, len(datas))
-	for i := 0; i < len(datas); i++ {
-		temp := make([]byte, 4*8)
-		digests[i] = temp
-
-		binary.BigEndian.PutUint32(digests[i][0:4], newData[i*8])
-		binary.BigEndian.PutUint32(digests[i][4:8], newData[i*8+1])
-		binary.BigEndian.PutUint32(digests[i][8:12], newData[i*8+2])
-		binary.BigEndian.PutUint32(digests[i][12:16], newData[i*8+3])
-		binary.BigEndian.PutUint32(digests[i][16:20], newData[i*8+4])
-		binary.BigEndian.PutUint32(digests[i][20:24], newData[i*8+5])
-		binary.BigEndian.PutUint32(digests[i][24:28], newData[i*8+6])
-		binary.BigEndian.PutUint32(digests[i][28:32], newData[i*8+7])
-	}
-
-	// fmt.Printf("Result1 => %s\n", hexToString(digests[0]))
-	// fmt.Printf("Result2 => %s\n", hexToString(digests[1]))
-	return digests
+	return hashWithGpu(h.device, h.kernel, h.endianness, datas)
 }
 
 func (h *hasherGpuSha256) IsValid(data string) bool {
@@ -119,11 +60,11 @@ func (h *hasherGpuSha256) Compare(transformedData []byte, referenceData []byte) 
 	return bytes.Equal(transformedData, referenceData)
 }
 
-func (h *hasherGpuSha256) convert(s string) []byte {
+func convert(s string) []byte {
 	return []byte(s)
 }
 
-func buildI(d *blackcl.Device, data []byte) (*blackcl.Bytes, error) {
+func buildByteBuffer(d *blackcl.Device, data []byte) (*blackcl.Bytes, error) {
 	v, err := d.NewBytes(len(data))
 	if err != nil {
 		panic("could not allocate buffer")
@@ -136,7 +77,7 @@ func buildI(d *blackcl.Device, data []byte) (*blackcl.Bytes, error) {
 	return v, err
 }
 
-func buildI2(d *blackcl.Device, data []uint32) (*blackcl.Uint32, error) {
+func buildUintBuffer(d *blackcl.Device, data []uint32) (*blackcl.Uint32, error) {
 	v, err := d.NewUint32(len(data))
 	if err != nil {
 		panic("could not allocate buffer")
@@ -147,6 +88,71 @@ func buildI2(d *blackcl.Device, data []uint32) (*blackcl.Uint32, error) {
 		panic("could not copy data to buffer")
 	}
 	return v, err
+}
+
+func hashWithGpu(device *blackcl.Device, kernel *blackcl.Kernel, endianness binary.ByteOrder, datas []string) [][]byte {
+
+	var sizeInput = make([]uint32, len(datas)+1)
+	var encoded = make([][]byte, len(datas))
+	var sumEncoded = 0
+	sizeInput[0] = 0
+
+	var previous = uint32(0)
+	for i, s := range datas {
+		/// Addresses
+		var address = uint32(len(s)) + previous
+		sizeInput[i+1] = address
+		previous = address
+
+		// Encoding
+		var converted = convert(s)
+		encoded[i] = converted
+		sumEncoded += len(converted)
+	}
+
+	var textInput = make([]byte, sumEncoded)
+	var position = 0
+	for _, s := range encoded {
+		var endPosition = position + len(s)
+		copy(textInput[position:endPosition], s)
+		position = endPosition
+	}
+
+	infos, _ := buildUintBuffer(device, sizeInput)
+	defer infos.Release()
+
+	key, _ := buildByteBuffer(device, textInput)
+	defer key.Release()
+
+	output, _ := buildUintBuffer(device, make([]uint32, 32*len(datas)))
+	defer output.Release()
+
+	err := <-kernel.Global(len(datas)).Local(1).Run(infos, key, output)
+	if err != nil {
+		panic("could not run kernel")
+	}
+
+	newData, err := output.Data()
+	if err != nil {
+		panic("could not get data from buffer")
+	}
+
+	var digests = make([][]byte, len(datas))
+	for i := 0; i < len(datas); i++ {
+		temp := make([]byte, 4*8)
+		digests[i] = temp
+
+		endianness.PutUint32(digests[i][0:4], newData[i*8])
+		endianness.PutUint32(digests[i][4:8], newData[i*8+1])
+		endianness.PutUint32(digests[i][8:12], newData[i*8+2])
+		endianness.PutUint32(digests[i][12:16], newData[i*8+3])
+		endianness.PutUint32(digests[i][16:20], newData[i*8+4])
+		endianness.PutUint32(digests[i][20:24], newData[i*8+5])
+		endianness.PutUint32(digests[i][24:28], newData[i*8+6])
+		endianness.PutUint32(digests[i][28:32], newData[i*8+7])
+	}
+
+	return digests
 }
 
 // https://github.com/Fruneng/opencl_sha_al_im

@@ -1,5 +1,5 @@
-gitlab.com/ngirot/blackcl v0.0.0-20210324130410-c3d17a0e8719 h1:TE/wE2QdjM2E0CrN614pTfJMeyCMn1bUtt2eOzfrNKU=
-gitlab.com/ngirot/blackcl v0.0.0-20210324130410-c3d17a0e8719/go.mod h1:VARo4aB9kWx1c4Orui4hAp21RwvTFqjUCJc5gHIInZ0=
+gitlab.com/ngirot/blackcl v0.0.0-20210412220045-0cef4951a40a h1:oiTiTynM+gLfqdZdDQE01jj1VqEfjFjVFfV8Dm8t76Y=
+gitlab.com/ngirot/blackcl v0.0.0-20210412220045-0cef4951a40a/go.mod h1:VARo4aB9kWx1c4Orui4hAp21RwvTFqjUCJc5gHIInZ0=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83 h1:/ZScEX8SfEmUGRHs0gxpqteO5nfNW6axyZbBdw9A12g=
 golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83/go.mod h1:jdWPYTVW3xRLrWPugEBEK3UY2ZEsg3UU495nc5E+M+I=
