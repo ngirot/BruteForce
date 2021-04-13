@@ -22,6 +22,11 @@ func main() {
 	flag.Parse()
 
 	var processingUnitConfiguration = conf.NewProcessingUnitConfiguration(*gpu)
+	var processingUnitAvailability = processingUnitConfiguration.CheckAvailability()
+	if processingUnitAvailability != nil {
+		fmt.Printf(processingUnitAvailability.Error())
+		return
+	}
 
 	if *bench {
 		var types = hashs.AllHasherTypes()
