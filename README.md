@@ -60,14 +60,21 @@ Found: zzzz in 3 s
 ```
 
 ### Gpu support (beta)
-If you want to build with GPU support, you must use the command `go build -tags opencl`.
+#### Use GPU support
+Currently, only SHA-256 is supported with this option, and only for Windows and Linux builds, with an OpenCL compatible device and driver.
 
-Currently, only SHA-256 is supported with this option, and only for Windows and Linux builds.
-
-Anf if you want to use GPU to compute hashs, just use the GPU parameter
-Example:
+And if you want to use GPU to compute hashs, just use the GPU parameter:
 ```
 ./BruteForce --type sha256 --value 9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08 --gpu
 Start brute-forcing '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08' (sha256)...
 Found: test in 9 s
 ```
+
+#### Build with GPU support
+If you want to build with GPU support, you must use the command `go build -tags opencl`.
+You will also need header and lib files available.
+- Linux : You just have to install the right package on your Linux system (example `dnf install opencl-headers` on Fedora)
+- Windows : download the OpenCL package (https://github.com/GPUOpen-LibrariesAndSDKs/OCL-SDK/releases) and use GO flags
+  `CGO_CPPFLAGS=-I c:\OCL_SDK_Light\include` and `CGO_LDFLAGS=-L c:\OCL_SDK_Light\lib\x86_64`
+
+
