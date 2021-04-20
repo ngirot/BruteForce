@@ -24,7 +24,7 @@ func main() {
 	var processingUnitConfiguration = conf.NewProcessingUnitConfiguration(*gpu)
 	var processingUnitAvailability = processingUnitConfiguration.CheckAvailability()
 	if processingUnitAvailability != nil {
-		fmt.Printf(processingUnitAvailability.Error())
+		fmt.Printf("%s\n", processingUnitAvailability.Error())
 		return
 	}
 
