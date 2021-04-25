@@ -6,13 +6,16 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/hex"
+	"github.com/ngirot/BruteForce/bruteforce/maths"
 	"gitlab.com/ngirot/blackcl"
+	"strings"
 )
 
 type hasherGpuSha256 struct {
-	device     *blackcl.Device
-	kernel     *blackcl.Kernel
-	endianness binary.ByteOrder
+	device           *blackcl.Device
+	kernelDictionary *blackcl.Kernel
+	kernelAlphabet   *blackcl.Kernel
+	endianness       binary.ByteOrder
 }
 
 func NewHasherGpuSha256() Hasher {
@@ -20,16 +23,16 @@ func NewHasherGpuSha256() Hasher {
 	if err == nil {
 		for _, device := range gpus {
 			device.AddProgram(kernelSourceImport)
-			kernel := device.Kernel("sha256_crypt_kernel")
+			kernelTest := device.Kernel("sha256_crypt_kernel")
 
-			var bigEndianResult = hashWithGpu(device, kernel, binary.BigEndian, []string{"test"})[0]
+			var bigEndianResult = hashWithGpu(device, kernelTest, binary.BigEndian, []string{"test"})[0]
 
 			var endianness binary.ByteOrder = binary.LittleEndian
 			if hex.EncodeToString(bigEndianResult) == "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08" {
 				endianness = binary.BigEndian
 			}
 
-			return &hasherGpuSha256{device, kernel, endianness}
+			return &hasherGpuSha256{device, device.Kernel("sha256_crypt_kernel"), device.Kernel("sha256_crypt_and_worder"), endianness}
 		}
 	}
 
@@ -46,7 +49,7 @@ func (h *hasherGpuSha256) DecodeInput(data string) []byte {
 }
 
 func (h *hasherGpuSha256) Hash(datas []string) [][]byte {
-	return hashWithGpu(h.device, h.kernel, h.endianness, datas)
+	return hashWithGpu(h.device, h.kernelDictionary, h.endianness, datas)
 }
 
 func (h *hasherGpuSha256) IsValid(data string) bool {
@@ -85,6 +88,88 @@ func buildUintBuffer(d *blackcl.Device, data []uint32) (*blackcl.Uint32, error) 
 		panic("could not copy data to buffer")
 	}
 	return v, err
+}
+
+func (h *hasherGpuSha256) ProcessWithGpu(charSet []string, saltBefore string, saltAfter string, numberOfWildCards int, expectedDigest string) string {
+	return processWithGpu(h.device, h.kernelAlphabet, h.endianness,
+		charSet, saltBefore, saltAfter, numberOfWildCards, expectedDigest)
+}
+
+func processWithGpu(device *blackcl.Device, kernel *blackcl.Kernel, endianness binary.ByteOrder,
+	charSet []string, saltBefore string, saltAfter string, numberOfWildCards int, expectedDigest string) string {
+
+	var de, _ = hex.DecodeString(expectedDigest)
+	digestExpected, _ := buildUintBuffer(device, []uint32{
+		endianness.Uint32(de[0:4]),
+		endianness.Uint32(de[4:8]),
+		endianness.Uint32(de[8:12]),
+		endianness.Uint32(de[12:16]),
+		endianness.Uint32(de[16:20]),
+		endianness.Uint32(de[20:24]),
+		endianness.Uint32(de[24:28]),
+		endianness.Uint32(de[28:32]),
+	})
+	defer digestExpected.Release()
+	numberOfWordToTest := maths.PowInt(len(charSet), numberOfWildCards)
+    wordSize := len(saltBefore)+len(saltAfter)+numberOfWildCards
+
+	bBuffer, _ := buildByteBuffer(device, make([]byte, numberOfWordToTest*wordSize))
+	defer bBuffer.Release()
+
+	bSaltBefore, _ := buildByteBuffer(device, []byte(saltBefore+"X"))
+	defer bSaltBefore.Release()
+
+	bSaltBeforeSize, _ := buildUintBuffer(device, []uint32{uint32(len(saltBefore))})
+	defer bSaltBeforeSize.Release()
+
+	bSaltAfter, _ := buildByteBuffer(device, []byte(saltAfter+"X"))
+	defer bSaltAfter.Release()
+
+	bSaltAfterSize, _ := buildUintBuffer(device, []uint32{uint32(len(saltAfter))})
+	defer bSaltAfterSize.Release()
+
+	bNumberOfWildcards, _ := buildUintBuffer(device, []uint32{uint32(numberOfWildCards)})
+	defer bNumberOfWildcards.Release()
+
+	bMatchingWildcard, _ := buildByteBuffer(device, make([]byte, numberOfWildCards))
+	defer bMatchingWildcard.Release()
+
+	mergedCharset := []byte(strings.Join(charSet, ""))
+	bCharSet, _ := buildByteBuffer(device, mergedCharset)
+	defer bCharSet.Release()
+
+	bCharSetSize, _ := buildUintBuffer(device, []uint32{uint32(len(mergedCharset))})
+	defer bCharSetSize.Release()
+
+	err := <-kernel.Global(numberOfWordToTest).Local(1).Run(
+		bBuffer,
+		bSaltBefore,
+		bSaltBeforeSize,
+		bSaltAfter,
+		bSaltAfterSize,
+		bNumberOfWildcards,
+		bMatchingWildcard,
+		bCharSet,
+		bCharSetSize,
+		digestExpected,
+	)
+
+	if err != nil {
+		panic("could not run kernel")
+	}
+
+	result, err := bMatchingWildcard.Data()
+	if err != nil {
+		panic("could not get data from buffer")
+	}
+
+	for i := 0; i < numberOfWildCards; i++ {
+		if result[i] != 0 {
+			return string(result)
+		}
+	}
+
+	return ""
 }
 
 func hashWithGpu(device *blackcl.Device, kernel *blackcl.Kernel, endianness binary.ByteOrder, datas []string) [][]byte {
@@ -154,6 +239,8 @@ func hashWithGpu(device *blackcl.Device, kernel *blackcl.Kernel, endianness bina
 
 // https://github.com/Fruneng/opencl_sha_al_im
 const kernelSourceImport = `
+#pragma OPENCL EXTENSION cl_khr_fp64 : enable
+
 #ifndef uint32_t
 #define uint32_t unsigned int
 #endif
@@ -166,6 +253,7 @@ const kernelSourceImport = `
 #define H5 0x9b05688c
 #define H6 0x1f83d9ab
 #define H7 0x5be0cd19
+
 
 
 uint rotr(uint x, int n) {
@@ -189,6 +277,23 @@ uint sigma1(uint x) {
   return rotr(x, 6) ^ rotr(x, 11) ^ rotr(x, 25);
 }
 
+uint custom_pow(uint a, uint b) {
+  int i;
+  int result = 1;
+  for(i=0;i<b;i++) {
+    result *=a;
+  }
+  return result;
+}
+
+int comp_arrays(uint *a1, __global uint *a2, int size) {
+  int i;
+  for (i=0;i<size;i++) {
+    if ( a1[i] != a2[i] ) return 0;
+  }
+  return 1;
+}
+
 uint gamma0(uint x) {
   return rotr(x, 7) ^ rotr(x, 18) ^ (x >> 3);
 }
@@ -197,10 +302,7 @@ uint gamma1(uint x) {
   return rotr(x, 17) ^ rotr(x, 19) ^ (x >> 10);
 }
 
-
-__kernel void sha256_crypt_kernel(__global uint *data_info,__global char *plain_keyMulti,  __global uint *digestMulti){
-
-int index=get_global_id(0);
+void hash(global char *plain_key, uint *digest, uint ulen) {
 
 //printf("%d => %s\n", index, plain_key);
 //printf(">>> %d - %d - %d - %d - %d\n", data_info[0], data_info[1], data_info[2]);
@@ -210,7 +312,7 @@ int index=get_global_id(0);
 //printf("W %d => %d <-> %d\n", index, data_info[index], data_info[index+1]);
   int t, gid, msg_pad;
   int stop, mmod;
-  uint i, ulen, item, total;
+  uint i, item, total;
   uint W[80], temp, A,B,C,D,E,F,G,H,T1,T2;
   uint re = /*data_info[1]*/ 1;
   int current_pad;
@@ -227,10 +329,6 @@ int index=get_global_id(0);
 };
 
   msg_pad=0;
-
-global char *plain_key=&plain_keyMulti[data_info[index]];
-global uint *digest=&digestMulti[index*8];
-  ulen = data_info[index+1] - data_info[index];
 
   total = ulen%64>=56?2:1 + ulen/64;
 
@@ -340,5 +438,68 @@ global uint *digest=&digestMulti[index*8];
   //    }
   }
 
+}
 
-}`
+__kernel void sha256_crypt_and_worder(__global char *buffer,
+                                      __global char *salt_before,
+                                      __global uint *size_salt_before,
+                                      __global char *salt_after,
+                                      __global uint *size_salt_after,
+                                      __global uint *number_of_wildcards,
+                                      __global char *matching_wild_card,
+                                      __global char *char_set,
+                                      __global uint *size_char_set,
+                                      __global uint *digest_expected
+                                      ) {
+
+  int index=get_global_id(0);
+  int i;
+
+  int word_size = size_salt_before[0] + size_salt_after[0] + number_of_wildcards[0];
+  global char *my_buffer = &buffer[index * word_size];
+
+  for (i=0;i < word_size;i++) {
+    if (i < size_salt_before[0]) {
+      my_buffer[i] = salt_before[i];
+    } else if (i < size_salt_before[0] + number_of_wildcards[0]) {
+      int pos = number_of_wildcards[0] - (i - size_salt_before[0]) - 1;
+      int base = size_char_set[0];
+      int div =  index / custom_pow(base, pos);
+      int current =  div % base;
+      my_buffer[i] = char_set[current];
+    } else {
+      my_buffer[i] = salt_after[i - size_salt_before[0] - number_of_wildcards[0]];
+    }
+  }
+
+  uint current_digest[32];
+  hash(my_buffer, current_digest, word_size);
+  
+  if (comp_arrays(current_digest, digest_expected, 32) == 1) {
+    global char *r = &matching_wild_card[0];
+    int j;
+    for (j=0;j<number_of_wildcards[0];j++) {
+      matching_wild_card[j] = my_buffer[size_salt_before[0]+j];
+    }
+  }
+}
+
+
+__kernel void sha256_crypt_kernel(__global uint *data_info,__global char *plain_keyMulti,  __global uint *digestMulti){
+
+  int index=get_global_id(0);
+
+  global char *plain_key=&plain_keyMulti[data_info[index]];
+  global uint *digest=&digestMulti[index*8];
+  uint ulen = data_info[index+1] - data_info[index];
+
+  uint current_digest[32];
+  hash(plain_key, current_digest, ulen);
+
+  int i;
+  for(i=0;i<32;i++) {
+    digest[i] = current_digest[i];
+  }
+
+}
+`
