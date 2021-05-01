@@ -1,10 +1,12 @@
 package words
 
-func CreateWorder(alphabetFile string, dictionaryFile string, step int, skip int) Worder {
-	if dictionaryFile != "" {
-		return createDictionaryWorder(dictionaryFile, step, skip)
+import "github.com/ngirot/BruteForce/bruteforce/conf"
+
+func CreateWorder(wordConf conf.WordConf, step int, skip int) Worder {
+	if wordConf.IsForAlphabet() {
+		return createAlphabetWorder(wordConf.Alphabet, step, skip)
 	} else {
-		return createAlphabetWorder(alphabetFile, step, skip)
+		return createDictionaryWorder(wordConf.Dictionary, step, skip)
 	}
 
 }

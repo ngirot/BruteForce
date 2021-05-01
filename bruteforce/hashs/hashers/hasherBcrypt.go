@@ -8,6 +8,10 @@ import (
 type hasherBcrypt struct {
 }
 
+func (h *hasherBcrypt) ProcessWithGpu(charSet []string, saltBefore string, saltAfter string, numberOfWildCards int, expectedDigest string) string {
+	panic("implement me")
+}
+
 func NewHasherBcrypt() Hasher {
 	return &hasherBcrypt{}
 }

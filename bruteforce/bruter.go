@@ -3,13 +3,44 @@ package bruteforce
 import (
 	"github.com/ngirot/BruteForce/bruteforce/conf"
 	"github.com/ngirot/BruteForce/bruteforce/words"
+	"math/rand"
 )
 
 type tester func(data []string) int
 type status func(data string)
 
-func TestAllStringsGpu(builder TesterBuilder, wordConf conf.WordConf, processingUnitConfiguration conf.ProcessingUnitConfiguration) string {
-	var worder = words.CreateWorder(wordConf.Alphabet, wordConf.Dictionary, 1, 0)
+func TestAllStringsGpuForAlphabet(builder TesterBuilder, wordConf conf.WordConf, processingUnitConfiguration conf.ProcessingUnitConfiguration) string {
+	var worder = words.CreateWorder(wordConf, 1, 0)
+	var hasher = builder.Build().Hasher()
+	var tester = builder.Build()
+
+	var charSet = worder.GetCharsetIfAvailable().AsCharset()
+	var maxWildCards = processingUnitConfiguration.NumberOfWildcardsForDeportedComputingUnit(len(charSet))
+
+	var wildcards = 1
+	for wildcards <= maxWildCards {
+		tester.Notify(createRandomWord(wildcards, charSet))
+		var result = hasher.ProcessWithGpu(charSet, wordConf.SaltBefore, wordConf.SaltAfter, wildcards, tester.Target())
+		if result != "" {
+			return result
+		}
+		wildcards++
+	}
+
+	for {
+		var currentWord = worder.Next()
+		tester.Notify(currentWord + createRandomWord(maxWildCards, charSet))
+		var result = hasher.ProcessWithGpu(charSet, wordConf.SaltBefore+currentWord, wordConf.SaltAfter, maxWildCards, tester.Target())
+
+		if result != "" {
+			return currentWord + result
+		}
+	}
+
+}
+
+func TestAllStringsGpuForDictionary(builder TesterBuilder, wordConf conf.WordConf, processingUnitConfiguration conf.ProcessingUnitConfiguration) string {
+	var worder = words.CreateWorder(wordConf, 1, 0)
 
 	var wordChannel = make(chan []string)
 	var resultChannel = make(chan string)
@@ -60,7 +91,7 @@ func TestAllStringsCpu(builder TesterBuilder, wordConf conf.WordConf, processing
 	var numberOfParallelRoutines = processingUnitConfiguration.NumberOfGoRoutines()
 
 	for i := 0; i < numberOfParallelRoutines; i++ {
-		var worder = words.CreateWorder(wordConf.Alphabet, wordConf.Dictionary, numberOfParallelRoutines, i)
+		var worder = words.CreateWorder(wordConf, numberOfParallelRoutines, i)
 		go wordConsumer(worder, builder, wordConf.SaltBefore, wordConf.SaltAfter, processingUnitConfiguration.NumberOfWordsPerIteration(), resultChannel)
 	}
 
@@ -117,4 +148,13 @@ func waitForResult(resultChannel chan string, numberOfChannels int) string {
 		}
 	}
 	return ""
+}
+
+func createRandomWord(size int, charSet []string) string {
+	var result = ""
+	for i := 0; i < size; i++ {
+		result += charSet[rand.Intn(len(charSet))]
+	}
+
+	return result
 }
