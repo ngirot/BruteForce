@@ -43,6 +43,10 @@ func (w *worderAlphabet) updateToNextWord(step int) {
 	}
 }
 
+func (w *worderAlphabet) GetCharsetIfAvailable() Alphabet {
+	return w.alphabet
+}
+
 func (w *worderAlphabet) generateWord() string {
 	var converted string
 

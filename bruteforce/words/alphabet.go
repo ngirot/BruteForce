@@ -7,6 +7,7 @@ import (
 type Alphabet interface {
 	Length() int
 	Letter(position int) string
+	AsCharset() []string
 }
 
 type alphabet struct {
@@ -38,4 +39,8 @@ func (a *alphabet) Length() int {
 
 func (a *alphabet) Letter(position int) string {
 	return a.letters[position]
+}
+
+func (a *alphabet) AsCharset() []string  {
+	return a.letters
 }

@@ -11,6 +11,10 @@ type hasherSha1 struct {
 	cache hash.Hash
 }
 
+func (h *hasherSha1) ProcessWithGpu(charSet []string, saltBefore string, saltAfter string, numberOfWildCards int, expectedDigest string) string {
+	panic("implement me")
+}
+
 func NewHasherSha1() Hasher {
 	return &hasherSha1{sha1.New()}
 }

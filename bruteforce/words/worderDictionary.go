@@ -11,7 +11,6 @@ type worderDictionary struct {
 	position int
 }
 
-
 func NewWorderDictionaryFromFile(fileName string, step int, skip int) Worder {
 	var file,_ = os.Open(fileName)
 	defer file.Close()
@@ -37,4 +36,8 @@ func (w *worderDictionary) Next() string {
 	var result = w.words[w.position]
 	w.position+=w.step
 	return result
+}
+
+func (w *worderDictionary) GetCharsetIfAvailable() Alphabet {
+	return nil
 }

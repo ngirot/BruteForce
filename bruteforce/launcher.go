@@ -14,13 +14,17 @@ func Launch(hash conf.HashConf, wordConf conf.WordConf, processingUnitConfigurat
 	var builder = new(TesterBuilder)
 
 	if !hashs.IsValidHash(hash) {
-		return "", errors.New("Hash value '" + hash.Value + "' is not valid for type '" + hash.HashType + "'\nExample of a valid hash : '"+hashs.ExampleHash(hash)+"'")
+		return "", errors.New("Hash value '" + hash.Value + "' is not valid for type '" + hash.HashType + "'\nExample of a valid hash : '" + hashs.ExampleHash(hash) + "'")
 	}
 
 	if builderFunc, error := buildTester(hash, processingUnitConfiguration); error == nil {
 		builder.Build = builderFunc
 		if processingUnitConfiguration.Type() == conf.Gpu {
-			return TestAllStringsGpu(*builder, wordConf, processingUnitConfiguration), nil
+			if wordConf.IsForAlphabet() {
+				return TestAllStringsGpuForAlphabet(*builder, wordConf, processingUnitConfiguration), nil
+			} else {
+				return TestAllStringsGpuForDictionary(*builder, wordConf, processingUnitConfiguration), nil
+			}
 		} else {
 			return TestAllStringsCpu(*builder, wordConf, processingUnitConfiguration), nil
 		}
@@ -41,6 +45,8 @@ func buildTester(hash conf.HashConf, processingUnitConfiguration conf.Processing
 			var tester = new(Tester)
 			tester.Notify = displayValue(spinner, heart)
 			tester.Test = testValues(hash.Value, hasher)
+			tester.Target = func() string { return hash.Value }
+			tester.Hasher = func() hashers.Hasher { return hasher }
 			return *tester
 		}, nil
 	} else {
@@ -48,10 +54,10 @@ func buildTester(hash conf.HashConf, processingUnitConfiguration conf.Processing
 	}
 }
 
-func displayValue(spinner display.Spinner, heart chan bool) func(string){
+func displayValue(spinner display.Spinner, heart chan bool) func(string) {
 	return func(data string) {
 		select {
-		case <- heart:
+		case <-heart:
 			fmt.Printf("\r%s %s...", spinner.Spin(), data)
 		default:
 		}
