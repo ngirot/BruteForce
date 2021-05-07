@@ -80,7 +80,7 @@ func checkResult(expected string, result string, e error, t *testing.T) {
 }
 
 func timeout(t *testing.T, testFunction testFunc) {
-	timeout := time.After(1000 * time.Millisecond)
+	timeout := time.After(5000 * time.Millisecond)
 	completed := make(chan bool)
 
 	go func() {
