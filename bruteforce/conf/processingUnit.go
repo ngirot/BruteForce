@@ -43,7 +43,7 @@ func (conf *ProcessingUnitConfiguration) NumberOfWildcardsForDeportedComputingUn
 			i++
 		}
 	} else {
-		return 0
+		return 1
 	}
 }
 

@@ -8,12 +8,12 @@ import (
 type hasherBcrypt struct {
 }
 
-func (h *hasherBcrypt) ProcessWithGpu(charSet []string, saltBefore string, saltAfter string, numberOfWildCards int, expectedDigest string) string {
-	panic("implement me")
-}
-
 func NewHasherBcrypt() Hasher {
 	return &hasherBcrypt{}
+}
+
+func (h *hasherBcrypt) ProcessWithWildcard(charSet []string, saltBefore string, saltAfter string, numberOfWildCards int, expectedDigest string) string {
+	return genericProcessWithWildCard(h, charSet, saltBefore, saltAfter, numberOfWildCards, expectedDigest)
 }
 
 func (h *hasherBcrypt) Example() string {

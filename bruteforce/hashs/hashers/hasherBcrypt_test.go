@@ -14,6 +14,24 @@ func TestHasherBcrypt_Hash_WithUnicodeWord(t *testing.T) {
 	testHashBcrypt(t, hasher, "ありがとう &!ç", "$2a$10$n6WTi0p4AFDqbKxQ/j2JuuXu.U1efAOxd9.DT5V8U5XQYKZfFc99C")
 }
 
+func TestHasherBcrypt_ProcessWithWildcard_WithSimpleWord(t *testing.T) {
+	var hasher = NewHasherBcrypt()
+
+	hasher.ProcessWithWildcard([]string{"e", "f"}, "", "", 1, "$2a$10$CHKhRsTMUlT2x8tOdkzJF.Gt4wp0dJk5qWRaumcfqazMMCAxxerGi")
+}
+
+func TestHasherBcrypt_ProcessWithWildcard_WithSaltBefore(t *testing.T) {
+	var hasher = NewHasherBcrypt()
+
+	hasher.ProcessWithWildcard([]string{"d", "e"}, "t", "", 1, "$2a$10$CHKhRsTMUlT2x8tOdkzJF.Gt4wp0dJk5qWRaumcfqazMMCAxxerGi")
+}
+
+func TestHasherBcrypt_ProcessWithWildcard_WithSaltAfter(t *testing.T) {
+	var hasher = NewHasherBcrypt()
+
+	hasher.ProcessWithWildcard([]string{"d", "e", "f"}, "", "t", 1, "$2a$10$CHKhRsTMUlT2x8tOdkzJF.Gt4wp0dJk5qWRaumcfqazMMCAxxerGi")
+}
+
 func TestHasherBcrypt_IsValid_WithAValidHash(t *testing.T) {
 	var hasher = NewHasherBcrypt()
 	var hash = "$2y$12$IG1fulw.SpW3meNG/Ht/hOypXW5Nv8gDfcx1Cx6SE.X7tIuQ0vzMm"

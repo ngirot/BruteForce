@@ -90,7 +90,7 @@ func buildUintBuffer(d *blackcl.Device, data []uint32) (*blackcl.Uint32, error) 
 	return v, err
 }
 
-func (h *hasherGpuSha256) ProcessWithGpu(charSet []string, saltBefore string, saltAfter string, numberOfWildCards int, expectedDigest string) string {
+func (h *hasherGpuSha256) ProcessWithWildcard(charSet []string, saltBefore string, saltAfter string, numberOfWildCards int, expectedDigest string) string {
 	return processWithGpu(h.device, h.kernelAlphabet, h.endianness,
 		charSet, saltBefore, saltAfter, numberOfWildCards, expectedDigest)
 }

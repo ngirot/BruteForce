@@ -23,6 +23,25 @@ func TestHasherMd5_Hash_WithUnicodeWord(t *testing.T) {
 	testHashMd5(t, hasher, []string{"ありがとう &!ç"}, []string{"9ebcc60effbdef7c4d101a7ced1c6b01"})
 }
 
+func TestHasherMd5_ProcessWithWildcard_WithSimpleWord(t *testing.T) {
+	var hasher = NewHasherMd5()
+
+	hasher.ProcessWithWildcard([]string{"e", "f"}, "", "", 1, "098f6bcd4621d373cade4e832627b4f6.Gt4wp0dJk5qWRaumcfqazMMCAxxerGi")
+}
+
+
+func TestHasherMd5_ProcessWithWildcard_WithSaltBefore(t *testing.T) {
+	var hasher = NewHasherMd5()
+
+	hasher.ProcessWithWildcard([]string{"d", "e"}, "t", "", 1, "098f6bcd4621d373cade4e832627b4f6")
+}
+
+func TestHasherMd5_ProcessWithWildcard_WithSaltAfter(t *testing.T) {
+	var hasher = NewHasherMd5()
+
+	hasher.ProcessWithWildcard([]string{"d", "e", "f"}, "", "t", 1, "098f6bcd4621d373cade4e832627b4f6")
+}
+
 func TestHasherMd5_Hash_ConsistencyWithSameHash(t *testing.T) {
 	var hasher = NewHasherMd5()
 	var testString = "test"

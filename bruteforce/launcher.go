@@ -19,15 +19,11 @@ func Launch(hash conf.HashConf, wordConf conf.WordConf, processingUnitConfigurat
 
 	if builderFunc, error := buildTester(hash, processingUnitConfiguration); error == nil {
 		builder.Build = builderFunc
-		if processingUnitConfiguration.Type() == conf.Gpu {
-			if wordConf.IsForAlphabet() {
-				return TestAllStringsGpuForAlphabet(*builder, wordConf, processingUnitConfiguration), nil
-			} else {
-				return TestAllStringsGpuForDictionary(*builder, wordConf, processingUnitConfiguration), nil
-			}
+		if wordConf.IsForAlphabet() {
+			return TestAllStringsForAlphabet(*builder, wordConf, processingUnitConfiguration), nil
 		} else {
-			return TestAllStringsCpu(*builder, wordConf, processingUnitConfiguration), nil
-		}
+			return TestAllStringsForDictionary(*builder, wordConf, processingUnitConfiguration), nil
+ 		}
 	} else {
 		return "", error
 	}

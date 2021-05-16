@@ -17,12 +17,30 @@ func TestHasherGpuSha256_Hash_WithMultipleWord(t *testing.T) {
 	testHashGpuSha256(t, hasher,
 		[]string{"test1", "test2"},
 		[]string{"1b4f0e9851971998e732078544c96b36c3d01cedf7caa332359d6f1d83567014", "60303ae22b998861bce3b28f33eec1be758a213c86c93c076dbe9f558c11c752"})
-
 }
 
 func TestHasherGpuSha256_Hash_WithUnicodeWord(t *testing.T) {
 	var hasher = NewHasherGpuSha256()
 	testHashGpuSha256(t, hasher, []string{"ありがとう &!ç"}, []string{"f89eddccb44ae418616060aefe3ca6604d49bc3d0e37e75167333d498532d7aa"})
+}
+
+func TestHasherGpuSha256_ProcessWithWildcard_WithSimpleWord(t *testing.T) {
+	var hasher = NewHasherGpuSha256()
+
+	hasher.ProcessWithWildcard([]string{"e", "f"}, "", "", 1, "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08.Gt4wp0dJk5qWRaumcfqazMMCAxxerGi")
+}
+
+
+func TestHasherGpuSha256_ProcessWithWildcard_WithSaltBefore(t *testing.T) {
+	var hasher = NewHasherGpuSha256()
+
+	hasher.ProcessWithWildcard([]string{"d", "e"}, "t", "", 1, "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08")
+}
+
+func TestHasherGpuSha256_ProcessWithWildcard_WithSaltAfter(t *testing.T) {
+	var hasher = NewHasherGpuSha256()
+
+	hasher.ProcessWithWildcard([]string{"d", "e", "f"}, "", "t", 1, "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08")
 }
 
 func TestHasherGpuSha256_Hash_ConsistencyWithSameHash(t *testing.T) {

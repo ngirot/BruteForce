@@ -11,12 +11,12 @@ type hasherSha512 struct {
 	cache hash.Hash
 }
 
-func (h *hasherSha512) ProcessWithGpu(charSet []string, saltBefore string, saltAfter string, numberOfWildCards int, expectedDigest string) string {
-	panic("implement me")
-}
-
 func NewHasherSha512() Hasher {
 	return &hasherSha512{sha512.New()}
+}
+
+func (h *hasherSha512) ProcessWithWildcard(charSet []string, saltBefore string, saltAfter string, numberOfWildCards int, expectedDigest string) string {
+	return genericProcessWithWildCard(h, charSet, saltBefore, saltAfter, numberOfWildCards, expectedDigest)
 }
 
 func (h *hasherSha512) Example() string {
