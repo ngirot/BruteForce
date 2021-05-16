@@ -2,9 +2,9 @@ package conf
 
 type WordConf struct {
 	Dictionary string
-	Alphabet string
+	Alphabet   string
 	SaltBefore string
-	SaltAfter string
+	SaltAfter  string
 }
 
 func NewWordConf(dictionary string, alphabet string, saltBefore string, saltAfter string) WordConf {

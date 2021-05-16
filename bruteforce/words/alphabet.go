@@ -23,7 +23,7 @@ func DefaultAlphabet() Alphabet {
 }
 
 func LoadAlphabet(file string) Alphabet {
-	var data,_ = ioutil.ReadFile(file)
+	var data, _ = ioutil.ReadFile(file)
 	var letters = make([]string, len(data), len(data))
 
 	for i, c := range data {
@@ -41,6 +41,6 @@ func (a *alphabet) Letter(position int) string {
 	return a.letters[position]
 }
 
-func (a *alphabet) AsCharset() []string  {
+func (a *alphabet) AsCharset() []string {
 	return a.letters
 }

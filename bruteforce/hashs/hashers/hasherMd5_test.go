@@ -29,7 +29,6 @@ func TestHasherMd5_ProcessWithWildcard_WithSimpleWord(t *testing.T) {
 	hasher.ProcessWithWildcard([]string{"e", "f"}, "", "", 1, "098f6bcd4621d373cade4e832627b4f6.Gt4wp0dJk5qWRaumcfqazMMCAxxerGi")
 }
 
-
 func TestHasherMd5_ProcessWithWildcard_WithSaltBefore(t *testing.T) {
 	var hasher = NewHasherMd5()
 

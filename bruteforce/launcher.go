@@ -23,7 +23,7 @@ func Launch(hash conf.HashConf, wordConf conf.WordConf, processingUnitConfigurat
 			return TestAllStringsForAlphabet(*builder, wordConf, processingUnitConfiguration), nil
 		} else {
 			return TestAllStringsForDictionary(*builder, wordConf, processingUnitConfiguration), nil
- 		}
+		}
 	} else {
 		return "", error
 	}

@@ -1,7 +1,7 @@
 package conf
 
-type HashConf struct  {
-	Value string
+type HashConf struct {
+	Value    string
 	HashType string
 }
 

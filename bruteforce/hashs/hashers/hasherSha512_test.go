@@ -28,7 +28,6 @@ func TestHasherSha512_ProcessWithWildcard_WithSimpleWord(t *testing.T) {
 	hasher.ProcessWithWildcard([]string{"e", "f"}, "", "", 1, "ee26b0dd4af7e749aa1a8ee3c10ae9923f618980772e473f8819a5d4940e0db27ac185f8a0e1d5f84f88bc887fd67b143732c304cc5fa9ad8e6f57f50028a8ff.Gt4wp0dJk5qWRaumcfqazMMCAxxerGi")
 }
 
-
 func TestHasherSha512_ProcessWithWildcard_WithSaltBefore(t *testing.T) {
 	var hasher = NewHasherSha512()
 

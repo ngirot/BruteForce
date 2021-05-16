@@ -62,7 +62,7 @@ func TestWorderAlphabet_Next_ShouldSkipByIncresingWordSizeWhenAllLettersWasRetur
 	}
 }
 
-func TestWorderAlphabet_Next_ShouldUseSkipAtInitialisation(t *testing.T)  {
+func TestWorderAlphabet_Next_ShouldUseSkipAtInitialisation(t *testing.T) {
 	var worder = NewWorderAlphabet(BuildAlphabet([]string{"0", "1", "2", "3"}), 1, 2)
 
 	var expectedResult = "2"
@@ -72,7 +72,7 @@ func TestWorderAlphabet_Next_ShouldUseSkipAtInitialisation(t *testing.T)  {
 	}
 }
 
-func TestWorderAlphabet_Next_ShouldMixSkipAndStep(t *testing.T)  {
+func TestWorderAlphabet_Next_ShouldMixSkipAndStep(t *testing.T) {
 	var worder = NewWorderAlphabet(BuildAlphabet([]string{"0", "1", "2", "3"}), 5, 2)
 
 	var expectedResult = "2"
@@ -82,7 +82,7 @@ func TestWorderAlphabet_Next_ShouldMixSkipAndStep(t *testing.T)  {
 	}
 }
 
-func TestWorderAlphabet_Next_ShouldSkipMoreWordsThanAlphabetSize(t *testing.T)  {
+func TestWorderAlphabet_Next_ShouldSkipMoreWordsThanAlphabetSize(t *testing.T) {
 	var worder = NewWorderAlphabet(BuildAlphabet([]string{"0", "1"}), 1, 3)
 
 	var expectedResult = "01"
@@ -101,5 +101,3 @@ func TestWorderAlphabet_Next_ShouldSkipMoreWordsThanTwiceAlphabetSize(t *testing
 		t.Errorf("The word '%s' was expected to be '%s' when the initialisation skip is bigger than initialisation size", result, expectedResult)
 	}
 }
-
-

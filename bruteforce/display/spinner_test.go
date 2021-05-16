@@ -1,5 +1,3 @@
-
-
 package display
 
 import (

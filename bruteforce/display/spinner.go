@@ -5,7 +5,7 @@ type Spinner interface {
 }
 
 type spinner struct {
-	set []string
+	set   []string
 	state int
 }
 
@@ -30,6 +30,6 @@ func NewCustomSpinner(chars []string) Spinner {
 
 func (s *spinner) Spin() string {
 	var result = s.set[s.state]
-	s.state = (s.state+1)%len(s.set)
+	s.state = (s.state + 1) % len(s.set)
 	return result
 }

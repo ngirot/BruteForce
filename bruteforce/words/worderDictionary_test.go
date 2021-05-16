@@ -48,7 +48,7 @@ func TestWorderDictionary_Next_SkipSomeWordsWithAStepValue(t *testing.T) {
 	}
 }
 
-func TestWorderDictionary_Next_ShouldSkipValuesAtInitialisation(t *testing.T)  {
+func TestWorderDictionary_Next_ShouldSkipValuesAtInitialisation(t *testing.T) {
 	var worder = NewWorderDictionary([]string{"word0", "word1", "word2", "word3"}, 1, 2)
 
 	var expectedFirstWord = "word2"
@@ -58,8 +58,7 @@ func TestWorderDictionary_Next_ShouldSkipValuesAtInitialisation(t *testing.T)  {
 	}
 }
 
-
-func TestWorderDictionary_Next_ShouldMixSkipAndStep(t *testing.T)  {
+func TestWorderDictionary_Next_ShouldMixSkipAndStep(t *testing.T) {
 	var worder = NewWorderDictionary([]string{"word0", "word1", "word2", "word3"}, 5, 2)
 
 	var expectedFirstWord = "word2"
@@ -77,4 +76,3 @@ func TestWorderDictionary_Next_ShouldRetundEmptyStringIfSkipValueIdBiggerThanDic
 		t.Errorf("When the dictionary is empty, the result should be an empty string but was '%s'", result)
 	}
 }
-

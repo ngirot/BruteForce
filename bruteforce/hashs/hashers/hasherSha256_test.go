@@ -28,7 +28,6 @@ func TestHasherSha256_ProcessWithWildcard_WithSimpleWord(t *testing.T) {
 	hasher.ProcessWithWildcard([]string{"e", "f"}, "", "", 1, "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08.Gt4wp0dJk5qWRaumcfqazMMCAxxerGi")
 }
 
-
 func TestHasherSha256_ProcessWithWildcard_WithSaltBefore(t *testing.T) {
 	var hasher = NewHasherSha256()
 
@@ -47,7 +46,7 @@ func TestHasherSha256_Hash_ConsistencyWithSameHash(t *testing.T) {
 
 	var firstResult = sha256ToString(hasher.Hash([]string{testString})[0])
 
-	for i:=0 ; i<10 ; i++ {
+	for i := 0; i < 10; i++ {
 		var anotherResult = sha256ToString(hasher.Hash([]string{testString})[0])
 		if anotherResult != firstResult {
 			t.Errorf("Hasher is not consistent : the first value was '%s', but it another all returned '%s'", firstResult, anotherResult)
@@ -93,6 +92,6 @@ func testHashSha256(t *testing.T, hasher Hasher, values []string, expectedHashs 
 	}
 }
 
-func sha256ToString(data [] byte) string {
+func sha256ToString(data []byte) string {
 	return hex.EncodeToString(data)
 }

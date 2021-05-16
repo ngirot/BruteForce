@@ -111,7 +111,7 @@ func processWithGpu(device *blackcl.Device, kernel *blackcl.Kernel, endianness b
 	})
 	defer digestExpected.Release()
 	numberOfWordToTest := maths.PowInt(len(charSet), numberOfWildCards)
-    wordSize := len(saltBefore)+len(saltAfter)+numberOfWildCards
+	wordSize := len(saltBefore) + len(saltAfter) + numberOfWildCards
 
 	bBuffer, _ := buildByteBuffer(device, make([]byte, numberOfWordToTest*wordSize))
 	defer bBuffer.Release()
