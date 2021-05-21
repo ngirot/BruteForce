@@ -15,23 +15,14 @@ func HasherCreator(hashType string, processingUnitConfiguration conf.ProcessingU
 		return nil, err
 	}
 
-	if description, present := hasherMap[hashType]; present {
+	if builder, present := hasherMap[hashType]; present {
 		var creator = func() hashers.Hasher {
-			return description.Build()
+			return builder()
 		}
 		return creator, nil
 	}
 
 	return nil, errors.New("'" + hashType + "' is not a valid hash type, must be one of: " + strings.Join(AllHasherTypes(), ", "))
-}
-
-func HasherBenchmarkDescription(hashType string) string {
-	var hasherMap, _ = buildHasherMap(conf.Cpu)
-	if description, present := hasherMap[hashType]; present {
-		return description.Description()
-	}
-
-	return hashType
 }
 
 func AllHasherTypes() []string {
@@ -63,7 +54,7 @@ func ExampleHash(hash conf.HashConf) string {
 	}
 }
 
-func buildHasherMap(processingUnit conf.ProcessingUnit) (map[string]selector.HasherInfos, error) {
+func buildHasherMap(processingUnit conf.ProcessingUnit) (map[string]func() hashers.Hasher, error) {
 	if processingUnit == conf.Gpu {
 		return selector.BuildGpuHasherMap()
 	} else {

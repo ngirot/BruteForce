@@ -5,13 +5,10 @@ import (
 	"fmt"
 	"github.com/ngirot/BruteForce/bruteforce"
 	"github.com/ngirot/BruteForce/bruteforce/conf"
-	"github.com/ngirot/BruteForce/bruteforce/hashs"
-	"github.com/ngirot/BruteForce/bruteforce/maths"
 	"os"
 )
 
 func main() {
-	var bench = flag.Bool("benchmark", false, "Launch a benchmark")
 	var value = flag.String("value", "", "The value to be tested")
 	var alphabet = flag.String("alphabet", "", "The file containing all characters")
 	var dictionary = flag.String("dictionary", "", "The file containing all words to be tested")
@@ -27,32 +24,6 @@ func main() {
 	if processingUnitAvailability != nil {
 		fmt.Printf("%s\n", processingUnitAvailability.Error())
 		return
-	}
-
-	if *bench {
-		var types = hashs.AllHasherTypes()
-		for _, t := range types {
-			var hasherCreator, _ = hashs.HasherCreator(t, processingUnitConfiguration)
-			var description = hashs.HasherBenchmarkDescription(t)
-
-			fmt.Printf("=== %s ===\n", description)
-			fmt.Printf("One CPU   : ")
-			var timeOneCpu = bruteforce.BenchHasherOneCpu(hasherCreator)
-			fmt.Printf("%s\n", maths.FormatNumber(timeOneCpu, "h/s"))
-
-			fmt.Printf("Multi CPU : ")
-			var timeMultiCpu = bruteforce.BenchHasherMultiCpu(hasherCreator)
-			fmt.Printf("%s\n", maths.FormatNumber(timeMultiCpu, "h/s"))
-
-			fmt.Print("\n")
-		}
-
-		fmt.Printf("=== Word generator ===\n")
-		fmt.Printf("One CPU   : ")
-		fmt.Printf("%s\n", maths.FormatNumber(bruteforce.BenchWorderOneCpu()/1000, "w/s"))
-		fmt.Printf("Multi CPU : ")
-		fmt.Printf("%s\n", maths.FormatNumber(bruteforce.BenchWorderMultiCpu()/1000, "w/s"))
-		os.Exit(0)
 	}
 
 	if *value == "" {
