@@ -3,12 +3,13 @@ package bruteforce
 import (
 	"github.com/ngirot/BruteForce/bruteforce/conf"
 	"github.com/ngirot/BruteForce/bruteforce/hashs/hashers"
+	"github.com/ngirot/BruteForce/bruteforce/maths"
 	"github.com/ngirot/BruteForce/bruteforce/words"
 	"math/rand"
 )
 
 type tester func(data []string) int
-type status func(data string)
+type status func(data string, numberComputed int)
 
 func TestAllStringsForAlphabet(builder TesterBuilder, wordConf conf.WordConf, processingUnitConfiguration conf.ProcessingUnitConfiguration) string {
 	var charSet = words.CreateWorder(wordConf, 1, 0).GetCharsetIfAvailable().AsCharset()
@@ -42,7 +43,7 @@ func processWildcardsWithoutWorder(maxWildCards int, tester Tester, charSet []st
 
 	var wildcards = 1
 	for wildcards <= maxWildCards {
-		tester.Notify(createRandomWord(wildcards, charSet))
+		tester.Notify(createRandomWord(wildcards, charSet), maths.PowInt(len(charSet), wildcards))
 		var result = hasher.ProcessWithWildcard(charSet, wordConf.SaltBefore, wordConf.SaltAfter, wildcards, tester.Target())
 		if result != "" {
 			return result
@@ -53,9 +54,10 @@ func processWildcardsWithoutWorder(maxWildCards int, tester Tester, charSet []st
 }
 
 func processWithWildCards(currentWorder words.Worder, tester Tester, maxWildCards int, charSet []string, hasher hashers.Hasher, saltBefore string, saltAfter string, resultChannel chan string) {
+	var computedPerPass = maths.PowInt(len(charSet), maxWildCards)
 	for {
 		var currentWord = currentWorder.Next()
-		tester.Notify(currentWord + createRandomWord(maxWildCards, charSet))
+		tester.Notify(currentWord + createRandomWord(maxWildCards, charSet), computedPerPass)
 		var result = hasher.ProcessWithWildcard(charSet, saltBefore+currentWord, saltAfter, maxWildCards, tester.Target())
 
 		if result != "" {
@@ -116,7 +118,7 @@ func testWords(builder TesterBuilder, wordConf conf.WordConf, wordChan chan []st
 }
 
 func isHash(words []string, saltBefore string, saltAfter string, test tester, notifyTesting status) string {
-	notifyTesting(words[0])
+	notifyTesting(words[0], len(words))
 	var saltedWords = make([]string, len(words))
 	copy(saltedWords, words)
 	for i, _ := range words {

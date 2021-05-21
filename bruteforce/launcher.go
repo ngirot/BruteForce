@@ -7,6 +7,8 @@ import (
 	"github.com/ngirot/BruteForce/bruteforce/display"
 	"github.com/ngirot/BruteForce/bruteforce/hashs"
 	"github.com/ngirot/BruteForce/bruteforce/hashs/hashers"
+	"github.com/ngirot/BruteForce/bruteforce/maths"
+	"math"
 	"time"
 )
 
@@ -35,11 +37,12 @@ func buildTester(hash conf.HashConf, processingUnitConfiguration conf.Processing
 		go heartBeat(heart)
 
 		var spinner = display.NewDefaultSpinner()
+		var displayFunction = displayValue(spinner, heart)
 
 		return func() Tester {
 			var hasher = hasherCreator()
 			var tester = new(Tester)
-			tester.Notify = displayValue(spinner, heart)
+			tester.Notify = displayFunction
 			tester.Test = testValues(hash.Value, hasher)
 			tester.Target = func() string { return hash.Value }
 			tester.Hasher = func() hashers.Hasher { return hasher }
@@ -50,14 +53,29 @@ func buildTester(hash conf.HashConf, processingUnitConfiguration conf.Processing
 	}
 }
 
-func displayValue(spinner display.Spinner, heart chan bool) func(string) {
-	return func(data string) {
+func displayValue(spinner display.Spinner, heart chan bool) func(string, int) {
+	var counter = 0
+	var lastUpdate = makeTimestamp()
+
+	return func(data string, numberComputed int) {
+		counter += numberComputed
 		select {
 		case <-heart:
-			fmt.Printf("\r%s %s...", spinner.Spin(), data)
+			var now = makeTimestamp()
+
+			var timeInSecond = float64(now-lastUpdate) / float64(1000)
+			var computationPerSeconds = int(math.Round(float64(counter) / timeInSecond))
+
+			fmt.Printf("\r%s %s [%s]   ", spinner.Spin(), data, maths.FormatNumber(computationPerSeconds, "h/s"))
+			counter = 0
+			lastUpdate = now
 		default:
 		}
 	}
+}
+
+func makeTimestamp() int64 {
+	return time.Now().UnixNano() / int64(time.Millisecond)
 }
 
 func testValues(hash string, hasher hashers.Hasher) func([]string) int {

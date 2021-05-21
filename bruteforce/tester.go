@@ -7,7 +7,7 @@ type TesterBuilder struct {
 }
 
 type Tester struct {
-	Notify func(data string)
+	Notify func(data string, numberComputed int)
 	Test   func(data []string) int
 	Target func() string
 	Hasher func() hashers.Hasher

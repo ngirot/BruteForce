@@ -6,6 +6,7 @@ import (
 	"github.com/ngirot/BruteForce/bruteforce"
 	"github.com/ngirot/BruteForce/bruteforce/conf"
 	"github.com/ngirot/BruteForce/bruteforce/hashs"
+	"github.com/ngirot/BruteForce/bruteforce/maths"
 	"os"
 )
 
@@ -37,20 +38,20 @@ func main() {
 			fmt.Printf("=== %s ===\n", description)
 			fmt.Printf("One CPU   : ")
 			var timeOneCpu = bruteforce.BenchHasherOneCpu(hasherCreator)
-			fmt.Printf("%s\n", formatBenchResult(timeOneCpu, "h/s"))
+			fmt.Printf("%s\n", maths.FormatNumber(timeOneCpu, "h/s"))
 
 			fmt.Printf("Multi CPU : ")
 			var timeMultiCpu = bruteforce.BenchHasherMultiCpu(hasherCreator)
-			fmt.Printf("%s\n", formatBenchResult(timeMultiCpu, "h/s"))
+			fmt.Printf("%s\n", maths.FormatNumber(timeMultiCpu, "h/s"))
 
 			fmt.Print("\n")
 		}
 
 		fmt.Printf("=== Word generator ===\n")
 		fmt.Printf("One CPU   : ")
-		fmt.Printf("%s\n", formatBenchResult(bruteforce.BenchWorderOneCpu()/1000, "w/s"))
+		fmt.Printf("%s\n", maths.FormatNumber(bruteforce.BenchWorderOneCpu()/1000, "w/s"))
 		fmt.Printf("Multi CPU : ")
-		fmt.Printf("%s\n", formatBenchResult(bruteforce.BenchWorderMultiCpu()/1000, "w/s"))
+		fmt.Printf("%s\n", maths.FormatNumber(bruteforce.BenchWorderMultiCpu()/1000, "w/s"))
 		os.Exit(0)
 	}
 
@@ -80,12 +81,4 @@ func main() {
 	}
 }
 
-func formatBenchResult(number int, unit string) string {
-	if number < 1000 {
-		return fmt.Sprintf("%d %s", number, unit)
-	}
-	if number < 1000000 {
-		return fmt.Sprintf("%.2f k%s", float64(number)/1000, unit)
-	}
-	return fmt.Sprintf("%.2f M%s", float64(number)/1000000, unit)
-}
+
