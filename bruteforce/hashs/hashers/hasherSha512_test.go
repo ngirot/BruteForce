@@ -25,19 +25,22 @@ func TestHasherSha512_Hash_WithUnicodeWord(t *testing.T) {
 func TestHasherSha512_ProcessWithWildcard_WithSimpleWord(t *testing.T) {
 	var hasher = NewHasherSha512()
 
-	hasher.ProcessWithWildcard([]string{"e", "f"}, "", "", 1, "ee26b0dd4af7e749aa1a8ee3c10ae9923f618980772e473f8819a5d4940e0db27ac185f8a0e1d5f84f88bc887fd67b143732c304cc5fa9ad8e6f57f50028a8ff.Gt4wp0dJk5qWRaumcfqazMMCAxxerGi")
+	var result = hasher.ProcessWithWildcard([]string{"e", "f"}, "", "", 1, "87c568e037a5fa50b1bc911e8ee19a77c4dd3c22bce9932f86fdd8a216afe1681c89737fada6859e91047eece711ec16da62d6ccb9fd0de2c51f132347350d8c")
+	assertResultSha512(t, result, "e")
 }
 
 func TestHasherSha512_ProcessWithWildcard_WithSaltBefore(t *testing.T) {
 	var hasher = NewHasherSha512()
 
-	hasher.ProcessWithWildcard([]string{"d", "e"}, "t", "", 1, "ee26b0dd4af7e749aa1a8ee3c10ae9923f618980772e473f8819a5d4940e0db27ac185f8a0e1d5f84f88bc887fd67b143732c304cc5fa9ad8e6f57f50028a8ff")
+	var result = hasher.ProcessWithWildcard([]string{"d", "e"}, "t", "", 1, "52b526411070a0a92075ea7c2575f759f480f2f4788d56300091696fc7eabb71a74a5fbca04b1934e215ca00bb6b977f6069a34588caa81f622616caacbc83bf")
+	assertResultSha512(t, result, "e")
 }
 
 func TestHasherSha512_ProcessWithWildcard_WithSaltAfter(t *testing.T) {
 	var hasher = NewHasherSha512()
 
-	hasher.ProcessWithWildcard([]string{"d", "e", "f"}, "", "t", 1, "ee26b0dd4af7e749aa1a8ee3c10ae9923f618980772e473f8819a5d4940e0db27ac185f8a0e1d5f84f88bc887fd67b143732c304cc5fa9ad8e6f57f50028a8ff")
+	var result = hasher.ProcessWithWildcard([]string{"d", "e", "f"}, "", "t", 1, "3190862beb8c1d3628e48946f5d154798707a97e829be5c51db208f6baf46d98561a15c2811822eeedc028ed890cbd1d070ee794ceabea8b9ae848c21861b203")
+	assertResultSha512(t, result, "f")
 }
 
 func TestHasherSha512_Hash_ConsistencyWithSameHash(t *testing.T) {
@@ -89,6 +92,12 @@ func testHashSha512(t *testing.T, hasher Hasher, values []string, expectedHashs 
 		if actual != expectedHashs[i] {
 			t.Errorf("Hash value [position %d] for string '%s' should be '%s' but was '%s'", i, values[i], expectedHashs[i], actual)
 		}
+	}
+}
+
+func assertResultSha512(t *testing.T, result string, expectedWord string) {
+	if result != expectedWord {
+		t.Errorf("Should have found '%s' but was '%s'", expectedWord, result)
 	}
 }
 

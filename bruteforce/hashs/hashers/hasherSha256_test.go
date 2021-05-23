@@ -7,37 +7,40 @@ import (
 
 func TestHasherSha256_Hash_WithSimpleWord(t *testing.T) {
 	var hasher = NewHasherSha256()
-	testHashSha1(t, hasher, []string{"test"}, []string{"9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"})
+	testHashSha256(t, hasher, []string{"test"}, []string{"9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"})
 }
 
 func TestHasherSha256_Hash_WithMultipleWord(t *testing.T) {
 	var hasher = NewHasherSha256()
-	testHashSha1(t, hasher,
+	testHashSha256(t, hasher,
 		[]string{"test1", "test2"},
 		[]string{"1b4f0e9851971998e732078544c96b36c3d01cedf7caa332359d6f1d83567014", "60303ae22b998861bce3b28f33eec1be758a213c86c93c076dbe9f558c11c752"})
 }
 
 func TestHasherSha256_Hash_WithUnicodeWord(t *testing.T) {
 	var hasher = NewHasherSha256()
-	testHashSha1(t, hasher, []string{"ありがとう &!ç"}, []string{"f89eddccb44ae418616060aefe3ca6604d49bc3d0e37e75167333d498532d7aa"})
+	testHashSha256(t, hasher, []string{"ありがとう &!ç"}, []string{"f89eddccb44ae418616060aefe3ca6604d49bc3d0e37e75167333d498532d7aa"})
 }
 
 func TestHasherSha256_ProcessWithWildcard_WithSimpleWord(t *testing.T) {
 	var hasher = NewHasherSha256()
 
-	hasher.ProcessWithWildcard([]string{"e", "f"}, "", "", 1, "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08.Gt4wp0dJk5qWRaumcfqazMMCAxxerGi")
+	var result = hasher.ProcessWithWildcard([]string{"e", "f"}, "", "", 1, "3f79bb7b435b05321651daefd374cdc681dc06faa65e374e38337b88ca046dea")
+	assertResultSha256(t, result, "e")
 }
 
 func TestHasherSha256_ProcessWithWildcard_WithSaltBefore(t *testing.T) {
 	var hasher = NewHasherSha256()
 
-	hasher.ProcessWithWildcard([]string{"d", "e"}, "t", "", 1, "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08")
+	var result = hasher.ProcessWithWildcard([]string{"d", "e"}, "t", "", 1, "2d6c9a90dd38f6852515274cde41a8cd8e7e1a7a053835334ec7e29f61b918dd")
+	assertResultSha256(t, result, "e")
 }
 
 func TestHasherSha256_ProcessWithWildcard_WithSaltAfter(t *testing.T) {
 	var hasher = NewHasherSha256()
 
-	hasher.ProcessWithWildcard([]string{"d", "e", "f"}, "", "t", 1, "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08")
+	var result = hasher.ProcessWithWildcard([]string{"d", "e", "f"}, "", "t", 1, "9adf009b9ea42792e73e5dc86e9c9024489d74ad894c0a3acbc03095158eaabc")
+	assertResultSha256(t, result, "f")
 }
 
 func TestHasherSha256_Hash_ConsistencyWithSameHash(t *testing.T) {
@@ -89,6 +92,12 @@ func testHashSha256(t *testing.T, hasher Hasher, values []string, expectedHashs 
 		if actual != expectedHashs[i] {
 			t.Errorf("Hash value [position %d] for string '%s' should be '%s' but was '%s'", i, values[i], expectedHashs[i], actual)
 		}
+	}
+}
+
+func assertResultSha256(t *testing.T, result string, expectedWord string) {
+	if result != expectedWord {
+		t.Errorf("Should have found '%s' but was '%s'", expectedWord, result)
 	}
 }
 

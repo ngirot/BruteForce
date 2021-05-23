@@ -26,19 +26,23 @@ func TestHasherMd5_Hash_WithUnicodeWord(t *testing.T) {
 func TestHasherMd5_ProcessWithWildcard_WithSimpleWord(t *testing.T) {
 	var hasher = NewHasherMd5()
 
-	hasher.ProcessWithWildcard([]string{"e", "f"}, "", "", 1, "098f6bcd4621d373cade4e832627b4f6.Gt4wp0dJk5qWRaumcfqazMMCAxxerGi")
+	var result = hasher.ProcessWithWildcard([]string{"e", "f"}, "", "", 1, "e1671797c52e15f763380b45e841ec32")
+	assertResultMd5(t, result, "e")
 }
+
 
 func TestHasherMd5_ProcessWithWildcard_WithSaltBefore(t *testing.T) {
 	var hasher = NewHasherMd5()
 
-	hasher.ProcessWithWildcard([]string{"d", "e"}, "t", "", 1, "098f6bcd4621d373cade4e832627b4f6")
+	var result = hasher.ProcessWithWildcard([]string{"d", "e"}, "t", "", 1, "569ef72642be0fadd711d6a468d68ee1")
+	assertResultMd5(t, result, "e")
 }
 
 func TestHasherMd5_ProcessWithWildcard_WithSaltAfter(t *testing.T) {
 	var hasher = NewHasherMd5()
 
-	hasher.ProcessWithWildcard([]string{"d", "e", "f"}, "", "t", 1, "098f6bcd4621d373cade4e832627b4f6")
+	var result = hasher.ProcessWithWildcard([]string{"d", "e", "f"}, "", "t", 1, "49af3b640275c9b552a5f3f3d96a6062")
+	assertResultMd5(t, result, "f")
 }
 
 func TestHasherMd5_Hash_ConsistencyWithSameHash(t *testing.T) {
@@ -90,6 +94,12 @@ func testHashMd5(t *testing.T, hasher Hasher, values []string, expectedHashs []s
 		if actual != expectedHashs[i] {
 			t.Errorf("Hash value [position %d] for string '%s' should be '%s' but was '%s'", i, values[i], expectedHashs[i], actual)
 		}
+	}
+}
+
+func assertResultMd5(t *testing.T, result string, expectedWord string) {
+	if result != expectedWord {
+		t.Errorf("Should have found '%s' but was '%s'", expectedWord, result)
 	}
 }
 

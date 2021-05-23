@@ -17,19 +17,25 @@ func TestHasherBcrypt_Hash_WithUnicodeWord(t *testing.T) {
 func TestHasherBcrypt_ProcessWithWildcard_WithSimpleWord(t *testing.T) {
 	var hasher = NewHasherBcrypt()
 
-	hasher.ProcessWithWildcard([]string{"e", "f"}, "", "", 1, "$2a$10$CHKhRsTMUlT2x8tOdkzJF.Gt4wp0dJk5qWRaumcfqazMMCAxxerGi")
+	var result = hasher.ProcessWithWildcard([]string{"e", "f"}, "", "", 1, "$2y$10$uNf7HlBxEyqKQHg/vWARcOgAe1UVAlvXqC9vKDcxYbiUf9i7q37WK")
+
+	assertResultBcrypt(t, result, "e")
 }
 
 func TestHasherBcrypt_ProcessWithWildcard_WithSaltBefore(t *testing.T) {
 	var hasher = NewHasherBcrypt()
 
-	hasher.ProcessWithWildcard([]string{"d", "e"}, "t", "", 1, "$2a$10$CHKhRsTMUlT2x8tOdkzJF.Gt4wp0dJk5qWRaumcfqazMMCAxxerGi")
+	var result = hasher.ProcessWithWildcard([]string{"d", "e"}, "t", "", 1, "$2y$10$.3rUbnuUCDMcPWmc99TgJOm5U7xO82M.BCp8oEmtL4m2wRxEFR8a2")
+
+	assertResultBcrypt(t, result, "e")
 }
 
 func TestHasherBcrypt_ProcessWithWildcard_WithSaltAfter(t *testing.T) {
 	var hasher = NewHasherBcrypt()
 
-	hasher.ProcessWithWildcard([]string{"d", "e", "f"}, "", "t", 1, "$2a$10$CHKhRsTMUlT2x8tOdkzJF.Gt4wp0dJk5qWRaumcfqazMMCAxxerGi")
+	var result = hasher.ProcessWithWildcard([]string{"d", "e", "f"}, "", "t", 1, "$2y$10$NYXNaJZKMbBzFQPEHa6n8.mB3lL7vyRcqy4vvOKnR8tVvYAVzBxE.")
+
+	assertResultBcrypt(t, result, "f")
 }
 
 func TestHasherBcrypt_IsValid_WithAValidHash(t *testing.T) {
@@ -81,5 +87,11 @@ func testHashBcrypt(t *testing.T, hasher Hasher, value string, expectedHash stri
 	var result = hasher.Compare([]byte(value), []byte(expectedHash))
 	if !result {
 		t.Errorf("Hash value '%s' should be valid for string '%s'", expectedHash, value)
+	}
+}
+
+func assertResultBcrypt(t *testing.T, result string, expectedWord string) {
+	if result != expectedWord {
+		t.Errorf("Should have found '%s' but was '%s'", expectedWord, result)
 	}
 }
