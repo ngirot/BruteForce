@@ -119,38 +119,31 @@ func processWithGpu(device *blackcl.Device, kernel *blackcl.Kernel, endianness b
 	bSaltBefore, _ := buildByteBuffer(device, []byte(saltBefore+"X"))
 	defer bSaltBefore.Release()
 
-	bSaltBeforeSize, _ := buildUintBuffer(device, []uint32{uint32(len(saltBefore))})
-	defer bSaltBeforeSize.Release()
+	mergedCharset := []byte(strings.Join(charSet, ""))
+	sizes, _ := buildUintBuffer(device, []uint32{
+		uint32(numberOfWildCards),
+		uint32(len(saltBefore)),
+		uint32(len(saltAfter)),
+		uint32(len(mergedCharset)),
+	})
+	defer sizes.Release()
 
 	bSaltAfter, _ := buildByteBuffer(device, []byte(saltAfter+"X"))
 	defer bSaltAfter.Release()
 
-	bSaltAfterSize, _ := buildUintBuffer(device, []uint32{uint32(len(saltAfter))})
-	defer bSaltAfterSize.Release()
-
-	bNumberOfWildcards, _ := buildUintBuffer(device, []uint32{uint32(numberOfWildCards)})
-	defer bNumberOfWildcards.Release()
-
 	bMatchingWildcard, _ := buildByteBuffer(device, make([]byte, numberOfWildCards))
 	defer bMatchingWildcard.Release()
 
-	mergedCharset := []byte(strings.Join(charSet, ""))
 	bCharSet, _ := buildByteBuffer(device, mergedCharset)
 	defer bCharSet.Release()
-
-	bCharSetSize, _ := buildUintBuffer(device, []uint32{uint32(len(mergedCharset))})
-	defer bCharSetSize.Release()
 
 	err := <-kernel.Global(numberOfWordToTest).Local(1).Run(
 		bBuffer,
 		bSaltBefore,
-		bSaltBeforeSize,
 		bSaltAfter,
-		bSaltAfterSize,
-		bNumberOfWildcards,
-		bMatchingWildcard,
 		bCharSet,
-		bCharSetSize,
+		sizes,
+		bMatchingWildcard,
 		digestExpected,
 	)
 
@@ -440,35 +433,38 @@ void hash(global char *plain_key, uint *digest, uint ulen) {
 
 }
 
-__kernel void sha256_crypt_and_worder(__global char *buffer,
+__kernel void sha256_crypt_and_worder(
+                                      __global char *buffer,
                                       __global char *salt_before,
-                                      __global uint *size_salt_before,
                                       __global char *salt_after,
-                                      __global uint *size_salt_after,
-                                      __global uint *number_of_wildcards,
-                                      __global char *matching_wild_card,
                                       __global char *char_set,
-                                      __global uint *size_char_set,
+                                      __global uint *sizes,
+                                      __global char *matching_wild_card,
                                       __global uint *digest_expected
                                       ) {
 
   int index=get_global_id(0);
   int i;
 
-  int word_size = size_salt_before[0] + size_salt_after[0] + number_of_wildcards[0];
+  uint number_of_wildcards = sizes[0];
+  uint size_salt_before = sizes[1];
+  uint size_salt_after = sizes[2];
+  uint size_char_set = sizes[3];
+
+  int word_size = size_salt_before + size_salt_after + number_of_wildcards;
   global char *my_buffer = &buffer[index * word_size];
 
   for (i=0;i < word_size;i++) {
-    if (i < size_salt_before[0]) {
+    if (i < size_salt_before) {
       my_buffer[i] = salt_before[i];
-    } else if (i < size_salt_before[0] + number_of_wildcards[0]) {
-      int pos = number_of_wildcards[0] - (i - size_salt_before[0]) - 1;
-      int base = size_char_set[0];
+    } else if (i < size_salt_before + number_of_wildcards) {
+      int pos = number_of_wildcards - (i - size_salt_before) - 1;
+      int base = size_char_set;
       int div =  index / custom_pow(base, pos);
       int current =  div % base;
       my_buffer[i] = char_set[current];
     } else {
-      my_buffer[i] = salt_after[i - size_salt_before[0] - number_of_wildcards[0]];
+      my_buffer[i] = salt_after[i - size_salt_before - number_of_wildcards];
     }
   }
 
@@ -478,8 +474,8 @@ __kernel void sha256_crypt_and_worder(__global char *buffer,
   if (comp_arrays(current_digest, digest_expected, 32) == 1) {
     global char *r = &matching_wild_card[0];
     int j;
-    for (j=0;j<number_of_wildcards[0];j++) {
-      matching_wild_card[j] = my_buffer[size_salt_before[0]+j];
+    for (j=0;j<number_of_wildcards;j++) {
+      matching_wild_card[j] = my_buffer[size_salt_before+j];
     }
   }
 }
