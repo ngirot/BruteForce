@@ -1,9 +1,10 @@
 // +build opencl
 
-package hashers
+package gpu
 
 import (
 	"encoding/hex"
+	"github.com/ngirot/BruteForce/bruteforce/hashs/hashers"
 	"testing"
 )
 
@@ -86,7 +87,7 @@ func TestHasherGpuSha256_IsValid_WithAValueWithNotvalidBase64Char(t *testing.T) 
 	}
 }
 
-func testHashGpuSha256(t *testing.T, hasher Hasher, values []string, expectedHashs []string) {
+func testHashGpuSha256(t *testing.T, hasher hashers.Hasher, values []string, expectedHashs []string) {
 	var actuals = hasher.Hash(values)
 
 	for i, _ := range values {

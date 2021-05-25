@@ -1,6 +1,7 @@
-package hashers
+package cpu
 
 import (
+	"github.com/ngirot/BruteForce/bruteforce/hashs/hashers"
 	"testing"
 )
 
@@ -83,7 +84,7 @@ func TestHasherBcrypt_IsValid_WithAValueWithIncorrectCost(t *testing.T) {
 	}
 }
 
-func testHashBcrypt(t *testing.T, hasher Hasher, value string, expectedHash string) {
+func testHashBcrypt(t *testing.T, hasher hashers.Hasher, value string, expectedHash string) {
 	var result = hasher.Compare([]byte(value), []byte(expectedHash))
 	if !result {
 		t.Errorf("Hash value '%s' should be valid for string '%s'", expectedHash, value)

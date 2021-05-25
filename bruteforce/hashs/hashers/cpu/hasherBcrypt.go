@@ -1,6 +1,7 @@
-package hashers
+package cpu
 
 import (
+	"github.com/ngirot/BruteForce/bruteforce/hashs/hashers"
 	"golang.org/x/crypto/bcrypt"
 	"regexp"
 )
@@ -8,7 +9,7 @@ import (
 type hasherBcrypt struct {
 }
 
-func NewHasherBcrypt() Hasher {
+func NewHasherBcrypt() hashers.Hasher {
 	return &hasherBcrypt{}
 }
 

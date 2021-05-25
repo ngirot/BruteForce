@@ -1,11 +1,12 @@
 // +build opencl
 
-package hashers
+package gpu
 
 import (
 	"bytes"
 	"encoding/binary"
 	"encoding/hex"
+	"github.com/ngirot/BruteForce/bruteforce/hashs/hashers"
 	"github.com/ngirot/BruteForce/bruteforce/maths"
 	"gitlab.com/ngirot/blackcl"
 	"strings"
@@ -18,7 +19,7 @@ type hasherGpuSha1 struct {
 	endianness       binary.ByteOrder
 }
 
-func NewHasherGpuSha1() Hasher {
+func NewHasherGpuSha1() hashers.Hasher {
 	gpus, err := blackcl.GetDevices(blackcl.DeviceTypeGPU)
 	if err == nil {
 		for _, device := range gpus {
@@ -53,7 +54,7 @@ func (h *hasherGpuSha1) Hash(datas []string) [][]byte {
 }
 
 func (h *hasherGpuSha1) IsValid(data string) bool {
-	return genericBase64Validator(h, data)
+	return hashers.GenericBase64Validator(h, data)
 }
 
 func (h *hasherGpuSha1) Compare(transformedData []byte, referenceData []byte) bool {

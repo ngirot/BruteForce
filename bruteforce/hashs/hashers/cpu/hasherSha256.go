@@ -1,9 +1,10 @@
-package hashers
+package cpu
 
 import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
+	"github.com/ngirot/BruteForce/bruteforce/hashs/hashers"
 	"hash"
 )
 
@@ -11,7 +12,7 @@ type hasherSha256 struct {
 	cache hash.Hash
 }
 
-func NewHasherSha256() Hasher {
+func NewHasherSha256() hashers.Hasher {
 	return &hasherSha256{sha256.New()}
 }
 
@@ -37,7 +38,7 @@ func (h *hasherSha256) Hash(datas []string) [][]byte {
 }
 
 func (h *hasherSha256) IsValid(data string) bool {
-	return genericBase64Validator(h, data)
+	return hashers.GenericBase64Validator(h, data)
 }
 
 func (h *hasherSha256) Compare(transformedData []byte, referenceData []byte) bool {

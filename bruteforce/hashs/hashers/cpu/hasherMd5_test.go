@@ -1,7 +1,8 @@
-package hashers
+package cpu
 
 import (
 	"encoding/hex"
+	"github.com/ngirot/BruteForce/bruteforce/hashs/hashers"
 	"testing"
 )
 
@@ -86,7 +87,7 @@ func TestHasherMd5_IsValid_WithAValueWithNotvalidBase64Char(t *testing.T) {
 	}
 }
 
-func testHashMd5(t *testing.T, hasher Hasher, values []string, expectedHashs []string) {
+func testHashMd5(t *testing.T, hasher hashers.Hasher, values []string, expectedHashs []string) {
 	var actuals = hasher.Hash(values)
 
 	for i, _ := range values {
