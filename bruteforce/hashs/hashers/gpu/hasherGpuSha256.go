@@ -7,9 +7,7 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"github.com/ngirot/BruteForce/bruteforce/hashs/hashers"
-	"github.com/ngirot/BruteForce/bruteforce/maths"
 	"gitlab.com/ngirot/blackcl"
-	"strings"
 )
 
 type hasherGpuSha256 struct {
@@ -26,7 +24,7 @@ func NewHasherGpuSha256() hashers.Hasher {
 			device.AddProgram(kernelSourceImport)
 			kernelTest := device.Kernel("sha256_crypt_kernel")
 
-			var bigEndianResult = hashWithGpu(device, kernelTest, binary.BigEndian, []string{"test"})[0]
+			var bigEndianResult = genericHashWithGpu(device, kernelTest, binary.BigEndian, []string{"test"}, 32)[0]
 
 			var endianness binary.ByteOrder = binary.LittleEndian
 			if hex.EncodeToString(bigEndianResult) == "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08" {
@@ -50,7 +48,7 @@ func (h *hasherGpuSha256) DecodeInput(data string) []byte {
 }
 
 func (h *hasherGpuSha256) Hash(datas []string) [][]byte {
-	return hashWithGpu(h.device, h.kernelDictionary, h.endianness, datas)
+	return genericHashWithGpu(h.device, h.kernelDictionary, h.endianness, datas, 32)
 }
 
 func (h *hasherGpuSha256) IsValid(data string) bool {
@@ -92,143 +90,8 @@ func buildUintBuffer(d *blackcl.Device, data []uint32) (*blackcl.Uint32, error) 
 }
 
 func (h *hasherGpuSha256) ProcessWithWildcard(charSet []string, saltBefore string, saltAfter string, numberOfWildCards int, expectedDigest string) string {
-	return processWithGpu(h.device, h.kernelAlphabet, h.endianness,
+	return genericProcessWithGpu(h.device, h.kernelAlphabet, h.endianness,
 		charSet, saltBefore, saltAfter, numberOfWildCards, expectedDigest)
-}
-
-func processWithGpu(device *blackcl.Device, kernel *blackcl.Kernel, endianness binary.ByteOrder,
-	charSet []string, saltBefore string, saltAfter string, numberOfWildCards int, expectedDigest string) string {
-
-	var de, _ = hex.DecodeString(expectedDigest)
-	digestExpected, _ := buildUintBuffer(device, []uint32{
-		endianness.Uint32(de[0:4]),
-		endianness.Uint32(de[4:8]),
-		endianness.Uint32(de[8:12]),
-		endianness.Uint32(de[12:16]),
-		endianness.Uint32(de[16:20]),
-		endianness.Uint32(de[20:24]),
-		endianness.Uint32(de[24:28]),
-		endianness.Uint32(de[28:32]),
-	})
-	defer digestExpected.Release()
-	numberOfWordToTest := maths.PowInt(len(charSet), numberOfWildCards)
-	wordSize := len(saltBefore) + len(saltAfter) + numberOfWildCards
-
-	bBuffer, _ := buildByteBuffer(device, make([]byte, numberOfWordToTest*wordSize))
-	defer bBuffer.Release()
-
-	bSaltBefore, _ := buildByteBuffer(device, []byte(saltBefore+"X"))
-	defer bSaltBefore.Release()
-
-	mergedCharset := []byte(strings.Join(charSet, ""))
-	sizes, _ := buildUintBuffer(device, []uint32{
-		uint32(numberOfWildCards),
-		uint32(len(saltBefore)),
-		uint32(len(saltAfter)),
-		uint32(len(mergedCharset)),
-	})
-	defer sizes.Release()
-
-	bSaltAfter, _ := buildByteBuffer(device, []byte(saltAfter+"X"))
-	defer bSaltAfter.Release()
-
-	bMatchingWildcard, _ := buildByteBuffer(device, make([]byte, numberOfWildCards))
-	defer bMatchingWildcard.Release()
-
-	bCharSet, _ := buildByteBuffer(device, mergedCharset)
-	defer bCharSet.Release()
-
-	err := <-kernel.Global(numberOfWordToTest).Local(1).Run(
-		bBuffer,
-		bSaltBefore,
-		bSaltAfter,
-		bCharSet,
-		sizes,
-		bMatchingWildcard,
-		digestExpected,
-	)
-
-	if err != nil {
-		panic("could not run kernel")
-	}
-
-	result, err := bMatchingWildcard.Data()
-	if err != nil {
-		panic("could not get data from buffer")
-	}
-
-	for i := 0; i < numberOfWildCards; i++ {
-		if result[i] != 0 {
-			return string(result)
-		}
-	}
-
-	return ""
-}
-
-func hashWithGpu(device *blackcl.Device, kernel *blackcl.Kernel, endianness binary.ByteOrder, datas []string) [][]byte {
-
-	var sizeInput = make([]uint32, len(datas)+1)
-	var encoded = make([][]byte, len(datas))
-	var sumEncoded = 0
-	sizeInput[0] = 0
-
-	var previous = uint32(0)
-	for i, s := range datas {
-		/// Addresses
-		var address = uint32(len(s)) + previous
-		sizeInput[i+1] = address
-		previous = address
-
-		// Encoding
-		var converted = convert(s)
-		encoded[i] = converted
-		sumEncoded += len(converted)
-	}
-
-	var textInput = make([]byte, sumEncoded)
-	var position = 0
-	for _, s := range encoded {
-		var endPosition = position + len(s)
-		copy(textInput[position:endPosition], s)
-		position = endPosition
-	}
-
-	infos, _ := buildUintBuffer(device, sizeInput)
-	defer infos.Release()
-
-	key, _ := buildByteBuffer(device, textInput)
-	defer key.Release()
-
-	output, _ := buildUintBuffer(device, make([]uint32, 32*len(datas)))
-	defer output.Release()
-
-	err := <-kernel.Global(len(datas)).Local(1).Run(infos, key, output)
-	if err != nil {
-		panic("could not run kernel")
-	}
-
-	newData, err := output.Data()
-	if err != nil {
-		panic("could not get data from buffer")
-	}
-
-	var digests = make([][]byte, len(datas))
-	for i := 0; i < len(datas); i++ {
-		temp := make([]byte, 4*8)
-		digests[i] = temp
-
-		endianness.PutUint32(digests[i][0:4], newData[i*8])
-		endianness.PutUint32(digests[i][4:8], newData[i*8+1])
-		endianness.PutUint32(digests[i][8:12], newData[i*8+2])
-		endianness.PutUint32(digests[i][12:16], newData[i*8+3])
-		endianness.PutUint32(digests[i][16:20], newData[i*8+4])
-		endianness.PutUint32(digests[i][20:24], newData[i*8+5])
-		endianness.PutUint32(digests[i][24:28], newData[i*8+6])
-		endianness.PutUint32(digests[i][28:32], newData[i*8+7])
-	}
-
-	return digests
 }
 
 // https://github.com/Fruneng/opencl_sha_al_im
