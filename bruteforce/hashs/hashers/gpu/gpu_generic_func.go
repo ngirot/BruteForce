@@ -136,6 +136,49 @@ func genericProcessWithGpu(device *blackcl.Device, kernel *blackcl.Kernel, endia
 	return ""
 }
 
+func detectEndianness(device *blackcl.Device, expectedHash string) binary.ByteOrder {
+	kernelTest := device.Kernel(genericKernelCryptName)
+
+	var bigEndianResult = genericHashWithGpu(device, kernelTest, binary.BigEndian, []string{"test"}, len(expectedHash)/2)[0]
+
+	var endianness binary.ByteOrder = binary.LittleEndian
+	if hex.EncodeToString(bigEndianResult) == expectedHash {
+		endianness = binary.BigEndian
+	}
+
+	return endianness
+}
+
+func buildByteBuffer(d *blackcl.Device, data []byte) (*blackcl.Bytes, error) {
+	v, err := d.NewBytes(len(data))
+	if err != nil {
+		panic("could not allocate buffer")
+	}
+
+	err = <-v.Copy(data)
+	if err != nil {
+		panic("could not copy data to buffer")
+	}
+	return v, err
+}
+
+func buildUintBuffer(d *blackcl.Device, data []uint32) (*blackcl.Uint32, error) {
+	v, err := d.NewUint32(len(data))
+	if err != nil {
+		panic("could not allocate buffer")
+	}
+
+	err = <-v.Copy(data)
+	if err != nil {
+		panic("could not copy data to buffer")
+	}
+	return v, err
+}
+
+func convert(s string) []byte {
+	return []byte(s)
+}
+
 const genericKernelCryptName = "crypt_kernel"
 const genericKernelCryptAndWorderName = "crypt_and_worder_kernel"
 

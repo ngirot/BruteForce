@@ -23,15 +23,7 @@ func NewHasherGpuSha256() hashers.Hasher {
 	if err == nil {
 		for _, device := range gpus {
 			device.AddProgram(buildKernelsSha256())
-			kernelTest := device.Kernel(genericKernelCryptName)
-
-			var bigEndianResult = genericHashWithGpu(device, kernelTest, binary.BigEndian, []string{"test"}, 32)[0]
-
-			var endianness binary.ByteOrder = binary.LittleEndian
-			if hex.EncodeToString(bigEndianResult) == "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08" {
-				endianness = binary.BigEndian
-			}
-
+			var endianness = detectEndianness(device, "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08")
 			return &hasherGpuSha256{device, device.Kernel(genericKernelCryptName), device.Kernel(genericKernelCryptAndWorderName), endianness}
 		}
 	}
@@ -58,36 +50,6 @@ func (h *hasherGpuSha256) IsValid(data string) bool {
 
 func (h *hasherGpuSha256) Compare(transformedData []byte, referenceData []byte) bool {
 	return bytes.Equal(transformedData, referenceData)
-}
-
-func convert(s string) []byte {
-	return []byte(s)
-}
-
-func buildByteBuffer(d *blackcl.Device, data []byte) (*blackcl.Bytes, error) {
-	v, err := d.NewBytes(len(data))
-	if err != nil {
-		panic("could not allocate buffer")
-	}
-
-	err = <-v.Copy(data)
-	if err != nil {
-		panic("could not copy data to buffer")
-	}
-	return v, err
-}
-
-func buildUintBuffer(d *blackcl.Device, data []uint32) (*blackcl.Uint32, error) {
-	v, err := d.NewUint32(len(data))
-	if err != nil {
-		panic("could not allocate buffer")
-	}
-
-	err = <-v.Copy(data)
-	if err != nil {
-		panic("could not copy data to buffer")
-	}
-	return v, err
 }
 
 func (h *hasherGpuSha256) ProcessWithWildcard(charSet []string, saltBefore string, saltAfter string, numberOfWildCards int, expectedDigest string) string {
