@@ -13,6 +13,7 @@ func BuildCpuHasherMap() map[string]func() hashers.Hasher {
 	hasherMap["sha1"] = func() hashers.Hasher { return cpu.NewHasherSha1() }
 	hasherMap["sha512"] = func() hashers.Hasher { return cpu.NewHasherSha512() }
 	hasherMap["bcrypt"] = func() hashers.Hasher { return cpu.NewHasherBcrypt() }
+	hasherMap["ripemd160"] = func() hashers.Hasher { return cpu.NewHasherRipemd160() }
 
 	return hasherMap
 }
