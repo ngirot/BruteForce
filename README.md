@@ -59,6 +59,18 @@ Start brute-forcing (sha1)...
 Found: zzzz in 3 s
 ```
 
+### How to use size limit
+If you want to control the size words generated, you can use the size parameter for a specific size or a range. Example:
+```
+./BruteForce  --type sha256 --value 9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08 --size 4
+Start brute-forcing '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08' (sha256)...
+Found: test in 2 s 
+```
+```
+./BruteForce  --type sha256 --value 9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08 --size 2-4
+Start brute-forcing '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08' (sha256)...
+Found: test in 2 s
+```
 ### Gpu support (beta)
 #### Use GPU support
 Currently, only SHA-256 is supported with this option, and only for Windows and Linux builds, with an OpenCL compatible device and driver.

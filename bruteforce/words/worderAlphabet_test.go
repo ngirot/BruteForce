@@ -5,7 +5,7 @@ import (
 )
 
 func TestWorderAlphabet_Next_ShouldGoFromOneLetterToAnother(t *testing.T) {
-	var worder = NewWorderAlphabet(BuildAlphabet([]string{"a", "b"}), 1, 0)
+	var worder = NewWorderAlphabet(BuildAlphabet([]string{"a", "b"}), 1, 0, 0, 0)
 
 	var expectedFirstWord = "a"
 	var firstWord = worder.Next()
@@ -21,7 +21,7 @@ func TestWorderAlphabet_Next_ShouldGoFromOneLetterToAnother(t *testing.T) {
 }
 
 func TestWorderAlphabet_Next_ShouldLoopIncreasingSizeWhenAllLettersWasReturned(t *testing.T) {
-	var worder = NewWorderAlphabet(BuildAlphabet([]string{"a", "b"}), 1, 0)
+	var worder = NewWorderAlphabet(BuildAlphabet([]string{"a", "b"}), 1, 0, 0, 0)
 
 	worder.Next()
 	worder.Next()
@@ -34,7 +34,7 @@ func TestWorderAlphabet_Next_ShouldLoopIncreasingSizeWhenAllLettersWasReturned(t
 }
 
 func TestWorderAlphabet_Next_ShouldSkipWordsDuringLoop(t *testing.T) {
-	var worder = NewWorderAlphabet(BuildAlphabet([]string{"0", "1", "2", "3", "4", "5"}), 2, 0)
+	var worder = NewWorderAlphabet(BuildAlphabet([]string{"0", "1", "2", "3", "4", "5"}), 2, 0, 0, 0)
 
 	var expectedFirstWord = "0"
 	var firstWord = worder.Next()
@@ -50,7 +50,7 @@ func TestWorderAlphabet_Next_ShouldSkipWordsDuringLoop(t *testing.T) {
 }
 
 func TestWorderAlphabet_Next_ShouldSkipByIncresingWordSizeWhenAllLettersWasReturnedOrSkipped(t *testing.T) {
-	var worder = NewWorderAlphabet(BuildAlphabet([]string{"0", "1", "2", "3"}), 2, 0)
+	var worder = NewWorderAlphabet(BuildAlphabet([]string{"0", "1", "2", "3"}), 2, 0, 0, 0)
 
 	worder.Next()
 	worder.Next()
@@ -63,7 +63,7 @@ func TestWorderAlphabet_Next_ShouldSkipByIncresingWordSizeWhenAllLettersWasRetur
 }
 
 func TestWorderAlphabet_Next_ShouldUseSkipAtInitialisation(t *testing.T) {
-	var worder = NewWorderAlphabet(BuildAlphabet([]string{"0", "1", "2", "3"}), 1, 2)
+	var worder = NewWorderAlphabet(BuildAlphabet([]string{"0", "1", "2", "3"}), 1, 2, 0, 0)
 
 	var expectedResult = "2"
 	var result = worder.Next()
@@ -73,7 +73,7 @@ func TestWorderAlphabet_Next_ShouldUseSkipAtInitialisation(t *testing.T) {
 }
 
 func TestWorderAlphabet_Next_ShouldMixSkipAndStep(t *testing.T) {
-	var worder = NewWorderAlphabet(BuildAlphabet([]string{"0", "1", "2", "3"}), 5, 2)
+	var worder = NewWorderAlphabet(BuildAlphabet([]string{"0", "1", "2", "3"}), 5, 2, 0, 0)
 
 	var expectedResult = "2"
 	var result = worder.Next()
@@ -83,7 +83,7 @@ func TestWorderAlphabet_Next_ShouldMixSkipAndStep(t *testing.T) {
 }
 
 func TestWorderAlphabet_Next_ShouldSkipMoreWordsThanAlphabetSize(t *testing.T) {
-	var worder = NewWorderAlphabet(BuildAlphabet([]string{"0", "1"}), 1, 3)
+	var worder = NewWorderAlphabet(BuildAlphabet([]string{"0", "1"}), 1, 3, 0, 0)
 
 	var expectedResult = "01"
 	var result = worder.Next()
@@ -93,11 +93,52 @@ func TestWorderAlphabet_Next_ShouldSkipMoreWordsThanAlphabetSize(t *testing.T) {
 }
 
 func TestWorderAlphabet_Next_ShouldSkipMoreWordsThanTwiceAlphabetSize(t *testing.T) {
-	var worder = NewWorderAlphabet(BuildAlphabet([]string{"0", "1"}), 1, 12)
+	var worder = NewWorderAlphabet(BuildAlphabet([]string{"0", "1"}), 1, 12, 0, 0)
 
 	var expectedResult = "110"
 	var result = worder.Next()
 	if result != expectedResult {
 		t.Errorf("The word '%s' was expected to be '%s' when the initialisation skip is bigger than initialisation size", result, expectedResult)
+	}
+}
+
+func TestWorderAlphabet_Next_ShouldStartAtMinimumSize(t *testing.T) {
+	var worder = NewWorderAlphabet(BuildAlphabet([]string{"0", "1"}), 1, 0, 2, 0)
+
+	var expectedResult = "00"
+	var result = worder.Next()
+	if result != expectedResult {
+		t.Errorf("The word '%s' was expected to be '%s' when the minimum size is set to 2", result, expectedResult)
+	}
+}
+
+func TestWorderAlphabet_Next_ShouldSkipWithMinimumSize(t *testing.T) {
+	var worder = NewWorderAlphabet(BuildAlphabet([]string{"0", "1"}), 1, 10, 2, 0)
+
+	var expectedResult = "110"
+	var result = worder.Next()
+	if result != expectedResult {
+		t.Errorf("The word '%s' was expected to be '%s' when the minimum size is set to 2 and skip 10 values", result, expectedResult)
+	}
+}
+
+func TestWorderAlphabet_Next_ShouldWorksWithHugeStep(t *testing.T) {
+	var worder = NewWorderAlphabet(BuildAlphabet([]string{"0", "1"}), 1000, 1, 2, 2)
+
+	var expectedResult = "01"
+	var result = worder.Next()
+	if result != expectedResult {
+		t.Errorf("The word '%s' was expected to be '%s' when a step is way bigger than maximum size", result, expectedResult)
+	}
+}
+
+func TestWorderAlphabet_Next_ShouldReturnEmptyStringWhenMaximumIsReach(t *testing.T) {
+	var worder = NewWorderAlphabet(BuildAlphabet([]string{"0", "1"}), 1, 1, 1, 1)
+	worder.Next()
+
+	var expectedResult = ""
+	var result = worder.Next()
+	if result != expectedResult {
+		t.Errorf("The word '%s' was expected to be '%s' when the max size is reach", result, expectedResult)
 	}
 }

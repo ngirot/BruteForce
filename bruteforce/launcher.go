@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func Launch(hash conf.HashConf, wordConf conf.WordConf, processingUnitConfiguration conf.ProcessingUnitConfiguration) (string, error) {
+func Launch(hash conf.HashConf, wordConf conf.WordConf, processingUnitConfiguration conf.ProcessingUnitConfiguration, wordSizeConfiguration conf.WorSizeLimitConf) (string, error) {
 	var builder = new(TesterBuilder)
 
 	if !hashs.IsValidHash(hash) {
@@ -22,7 +22,7 @@ func Launch(hash conf.HashConf, wordConf conf.WordConf, processingUnitConfigurat
 	if builderFunc, error := buildTester(hash, processingUnitConfiguration); error == nil {
 		builder.Build = builderFunc
 		if wordConf.IsForAlphabet() {
-			return TestAllStringsForAlphabet(*builder, wordConf, processingUnitConfiguration), nil
+			return TestAllStringsForAlphabet(*builder, wordConf, processingUnitConfiguration, wordSizeConfiguration), nil
 		} else {
 			return TestAllStringsForDictionary(*builder, wordConf, processingUnitConfiguration), nil
 		}

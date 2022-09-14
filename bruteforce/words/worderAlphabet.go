@@ -1,24 +1,38 @@
 package words
 
+import (
+	"github.com/ngirot/BruteForce/bruteforce/maths"
+)
+
 type worderAlphabet struct {
 	letters  []int
 	alphabet Alphabet
 	wordSize int
 	step     int
+	maxSize  int
 }
 
-func NewWorderAlphabet(alphabet Alphabet, step int, skip int) Worder {
-	var worder = worderAlphabet{make([]int, 1, 1), alphabet, 1, step}
+func NewWorderAlphabet(alphabet Alphabet, step int, skip int, minSize int, maxSize int) Worder {
+	var wordSize = maths.MaxInt(1, minSize)
+	var worder = worderAlphabet{make([]int, wordSize), alphabet, wordSize, step, maxSize}
 	worder.updateToNextWord(skip)
 	return &worder
 }
 
 func (w *worderAlphabet) Next() string {
+	if w.isMaxSizeReached() {
+		return ""
+	}
+
 	var word = w.generateWord()
 
 	w.updateToNextWord(w.step)
 
 	return word
+}
+
+func (w *worderAlphabet) isMaxSizeReached() bool {
+	return w.maxSize != 0 && w.wordSize > w.maxSize
 }
 
 func (w *worderAlphabet) updateToNextWord(step int) {

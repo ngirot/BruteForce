@@ -16,6 +16,7 @@ func main() {
 	var saltBefore = flag.String("salt-before", "", "The salt added to the end of the generated word")
 	var saltAfter = flag.String("salt-after", "", "The salt added to the beginning of the generated word")
 	var gpu = flag.Bool("gpu", false, "Use GPU instead of CPU for hash computation")
+	var size = flag.String("size", "0", "The password range size, or unique size. Examples: '5', '3-7'")
 
 	flag.Parse()
 
@@ -23,6 +24,12 @@ func main() {
 	var processingUnitAvailability = processingUnitConfiguration.CheckAvailability()
 	if processingUnitAvailability != nil {
 		fmt.Printf("%s\n", processingUnitAvailability.Error())
+		return
+	}
+
+	var wordSizeConf, err = conf.NewWordSizeLimitConf(*size)
+	if err != nil {
+		fmt.Printf("Parameter '%s' is not a valid size limit. Example of valid limit: '5' or '8-10'", *size)
 		return
 	}
 
@@ -38,7 +45,7 @@ func main() {
 
 	var chrono = bruteforce.NewChrono()
 	chrono.Start()
-	if result, error := bruteforce.Launch(hashConf, wordConf, processingUnitConfiguration); error == nil {
+	if result, error := bruteforce.Launch(hashConf, wordConf, processingUnitConfiguration, wordSizeConf); error == nil {
 		chrono.End()
 
 		if result != "" {
@@ -51,5 +58,3 @@ func main() {
 		fmt.Printf("%s\n", error)
 	}
 }
-
-
