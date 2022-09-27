@@ -56,7 +56,10 @@ func processWildcardsWithoutWorder(maxWildCards int, tester Tester, charSet []st
 	var hasher = builder.Build().Hasher()
 
 	var currentWildcards = maths.MaxInt(1, wordSizeConfiguration.Min)
-	var maxNumberOfWildCards = maths.MinInt(maxWildCards, wordSizeConfiguration.Max)
+	var maxNumberOfWildCards = maxWildCards
+	if wordSizeConfiguration.Max != 0 {
+		maxNumberOfWildCards = maths.MinInt(maxWildCards, wordSizeConfiguration.Max)
+	}
 
 	for currentWildcards <= maxNumberOfWildCards {
 		tester.Notify(createRandomWord(currentWildcards, charSet), maths.PowInt(len(charSet), currentWildcards))
