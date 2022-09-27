@@ -1,14 +1,15 @@
+//go:build opencl
 // +build opencl
 
 package conf
 
 import (
-	"gitlab.com/ngirot/blackcl"
+	"github.com/ngirot/BruteForce/bruteforce/hashs/hashers/gpu"
 )
 
 func HasDeviceAvailable() bool {
-	gpus, err := blackcl.GetDevices(blackcl.DeviceTypeGPU)
-	if err != nil || len(gpus) == 0 {
+	_, err := gpu.GetDevice()
+	if err != nil {
 		return false
 	} else {
 		return true

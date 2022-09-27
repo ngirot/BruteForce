@@ -1,3 +1,4 @@
+//go:build opencl
 // +build opencl
 
 package gpu
@@ -19,13 +20,11 @@ type hasherGpuSha256 struct {
 }
 
 func NewHasherGpuSha256() hashers.Hasher {
-	gpus, err := blackcl.GetDevices(blackcl.DeviceTypeGPU)
+	device, err := GetDevice()
 	if err == nil {
-		for _, device := range gpus {
-			device.AddProgram(buildKernelsSha256())
-			var endianness = detectEndianness(device, "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08")
-			return &hasherGpuSha256{device, device.Kernel(genericKernelCryptName), device.Kernel(genericKernelCryptAndWorderName), endianness}
-		}
+		device.AddProgram(buildKernelsSha256())
+		var endianness = detectEndianness(device, "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08")
+		return &hasherGpuSha256{device, device.Kernel(genericKernelCryptName), device.Kernel(genericKernelCryptAndWorderName), endianness}
 	}
 
 	return nil
