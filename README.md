@@ -87,6 +87,6 @@ If you want to build with GPU support, you must use the command `go build -tags 
 You will also need header and lib files available.
 - Linux : You just have to install the right package on your Linux system (example `dnf install opencl-headers` on Fedora)
 - Windows : download the OpenCL package (https://github.com/GPUOpen-LibrariesAndSDKs/OCL-SDK/releases) and use GO flags
-  `CGO_CPPFLAGS=-I c:\OCL_SDK_Light\include` and `CGO_LDFLAGS=-L c:\OCL_SDK_Light\lib\x86_64`
+  `CGO_CPPFLAGS=-I c:\OCL_SDK_Light\include` and `CGO_LDFLAGS=-L c:\OCL_SDK_Light\lib\x86_64`. You might also need gcc, I use the package from https://jmeubank.github.io/tdm-gcc/ but it should work with any version.
 
 
