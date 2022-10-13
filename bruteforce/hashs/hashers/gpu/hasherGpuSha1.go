@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/hex"
+	"fmt"
 	"github.com/ngirot/BruteForce/bruteforce/hashs/hashers"
 	"gitlab.com/ngirot/blackcl"
 	"strings"
@@ -17,14 +18,15 @@ type hasherGpuSha1 struct {
 	kernelDictionary *blackcl.Kernel
 	kernelAlphabet   *blackcl.Kernel
 	endianness       binary.ByteOrder
+	maxWordSize      int
 }
 
 func NewHasherGpuSha1() hashers.Hasher {
 	device, err := GetDevice()
 	if err == nil {
-		device.AddProgram(buildKernelsSha1())
+		device.AddProgram(buildKernelsSha1(DefaultWordSize))
 		var endianness = detectEndianness(device, "a94a8fe5ccb19ba61c4c0873d391e987982fbbd3")
-		return &hasherGpuSha1{device, device.Kernel(genericKernelCryptName), device.Kernel(genericKernelCryptAndWorderName), endianness}
+		return &hasherGpuSha1{device, device.Kernel(genericKernelCryptName), device.Kernel(genericKernelCryptAndWorderName), endianness, DefaultWordSize}
 	}
 
 	return nil
@@ -52,12 +54,22 @@ func (h *hasherGpuSha1) Compare(transformedData []byte, referenceData []byte) bo
 }
 
 func (h *hasherGpuSha1) ProcessWithWildcard(charSet []string, saltBefore string, saltAfter string, numberOfWildCards int, expectedDigest string) string {
+	var wordSize = len(saltBefore) + len(saltAfter) + numberOfWildCards
+	if h.maxWordSize < wordSize {
+		h.reconfigure(wordSize)
+	}
 	return genericProcessWithGpu(h.device, h.kernelAlphabet, h.endianness,
 		charSet, saltBefore, saltAfter, numberOfWildCards, expectedDigest)
 }
 
+func (h *hasherGpuSha1) reconfigure(wordSize int) {
+	fmt.Printf("Reconfigure to %d\n\n", wordSize)
+	h.device.AddProgram(buildKernelsSha1(wordSize))
+	h.maxWordSize = wordSize
+}
+
 // https://github.com/Fruneng/opencl_sha_al_im
-func buildKernelsSha1() string {
+func buildKernelsSha1(maxWordSize int) string {
 	var parametrized = `
 #ifdef cl_khr_byte_addressable_store
 #pragma OPENCL EXTENSION cl_khr_byte_addressable_store : disable
@@ -98,7 +110,7 @@ uint32_t SHA1CircularShift(int bits, uint32_t word)
 	return ((word << bits) & 0xFFFFFFFF) | (word) >> (32 - (bits));
 }
 
-void hash(global char *plain_key, uint *digest, uint ulen) {
+void hash(char *plain_key, uint *digest, uint ulen) {
 int t, gid, msg_pad;
     int stop, mmod;
     uint i, item, total;
@@ -258,5 +270,5 @@ ___KERNELS___
 
 }
 `
-	return strings.ReplaceAll(parametrized, "___KERNELS___", buildGenericKernel(20))
+	return strings.ReplaceAll(parametrized, "___KERNELS___", buildGenericKernel(20, maxWordSize))
 }

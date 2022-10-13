@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/hex"
+	"fmt"
 	"github.com/ngirot/BruteForce/bruteforce/hashs/hashers"
 	"gitlab.com/ngirot/blackcl"
 	"strings"
@@ -17,14 +18,15 @@ type hasherGpuSha256 struct {
 	kernelDictionary *blackcl.Kernel
 	kernelAlphabet   *blackcl.Kernel
 	endianness       binary.ByteOrder
+	maxWordSize      int
 }
 
 func NewHasherGpuSha256() hashers.Hasher {
 	device, err := GetDevice()
 	if err == nil {
-		device.AddProgram(buildKernelsSha256())
+		device.AddProgram(buildKernelsSha256(DefaultWordSize))
 		var endianness = detectEndianness(device, "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08")
-		return &hasherGpuSha256{device, device.Kernel(genericKernelCryptName), device.Kernel(genericKernelCryptAndWorderName), endianness}
+		return &hasherGpuSha256{device, device.Kernel(genericKernelCryptName), device.Kernel(genericKernelCryptAndWorderName), endianness, DefaultWordSize}
 	}
 
 	return nil
@@ -52,12 +54,22 @@ func (h *hasherGpuSha256) Compare(transformedData []byte, referenceData []byte) 
 }
 
 func (h *hasherGpuSha256) ProcessWithWildcard(charSet []string, saltBefore string, saltAfter string, numberOfWildCards int, expectedDigest string) string {
+	var wordSize = len(saltBefore) + len(saltAfter) + numberOfWildCards
+	if h.maxWordSize < wordSize {
+		h.reconfigure(wordSize)
+	}
 	return genericProcessWithGpu(h.device, h.kernelAlphabet, h.endianness,
 		charSet, saltBefore, saltAfter, numberOfWildCards, expectedDigest)
 }
 
+func (h *hasherGpuSha256) reconfigure(wordSize int) {
+	fmt.Printf("Reconfigure to %d\n\n", wordSize)
+	h.device.AddProgram(buildKernelsSha256(wordSize))
+	h.maxWordSize = wordSize
+}
+
 // https://github.com/Fruneng/opencl_sha_al_im
-func buildKernelsSha256() string {
+func buildKernelsSha256(maxWordSize int) string {
 
 	var parametrized = `
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable
@@ -106,7 +118,7 @@ uint gamma1(uint x) {
   return rotr(x, 17) ^ rotr(x, 19) ^ (x >> 10);
 }
 
-void hash(global char *plain_key, uint *digest, uint ulen) {
+void hash(char *plain_key, uint *digest, uint ulen) {
 
 //printf("%d => %s\n", index, plain_key);
 //printf(">>> %d - %d - %d - %d - %d\n", data_info[0], data_info[1], data_info[2]);
@@ -249,5 +261,5 @@ ___KERNELS___
 }
 `
 
-	return strings.ReplaceAll(parametrized, "___KERNELS___", buildGenericKernel(32))
+	return strings.ReplaceAll(parametrized, "___KERNELS___", buildGenericKernel(32, maxWordSize))
 }

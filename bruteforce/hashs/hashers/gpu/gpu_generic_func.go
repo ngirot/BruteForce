@@ -1,3 +1,4 @@
+//go:build opencl
 // +build opencl
 
 package gpu
@@ -10,6 +11,8 @@ import (
 	"strconv"
 	"strings"
 )
+
+const DefaultWordSize = 100
 
 func genericHashWithGpu(device *blackcl.Device, kernel *blackcl.Kernel, endianness binary.ByteOrder, datas []string, hashSizeInByte int) [][]byte {
 
@@ -82,10 +85,6 @@ func genericProcessWithGpu(device *blackcl.Device, kernel *blackcl.Kernel, endia
 	digestExpected, _ := buildUintBuffer(device, asUint32)
 	defer digestExpected.Release()
 	numberOfWordToTest := maths.PowInt(len(charSet), numberOfWildCards)
-	wordSize := len(saltBefore) + len(saltAfter) + numberOfWildCards
-
-	bBuffer, _ := buildByteBuffer(device, make([]byte, numberOfWordToTest*wordSize))
-	defer bBuffer.Release()
 
 	bSaltBefore, _ := buildByteBuffer(device, []byte(saltBefore+"X"))
 	defer bSaltBefore.Release()
@@ -109,7 +108,6 @@ func genericProcessWithGpu(device *blackcl.Device, kernel *blackcl.Kernel, endia
 	defer bCharSet.Release()
 
 	err := <-kernel.Global(numberOfWordToTest).Local(1).Run(
-		bBuffer,
 		bSaltBefore,
 		bSaltAfter,
 		bCharSet,
@@ -182,7 +180,7 @@ func convert(s string) []byte {
 const genericKernelCryptName = "crypt_kernel"
 const genericKernelCryptAndWorderName = "crypt_and_worder_kernel"
 
-func buildGenericKernel(size int) string {
+func buildGenericKernel(size int, maxWorldSize int) string {
 
 	const parametrized = `
 
@@ -204,7 +202,6 @@ func buildGenericKernel(size int) string {
 	}
 	
 	__kernel void crypt_and_worder_kernel(
-										  __global char *buffer,
 										  __global char *salt_before,
 										  __global char *salt_after,
 										  __global char *char_set,
@@ -222,8 +219,8 @@ func buildGenericKernel(size int) string {
 	  uint size_char_set = sizes[3];
 	
 	  int word_size = size_salt_before + size_salt_after + number_of_wildcards;
-	  global char *my_buffer = &buffer[index * word_size];
-	
+	  local char my_buffer[___MAX_WORD_SIZE___];
+	  	
 	  for (i=0;i < word_size;i++) {
 		if (i < size_salt_before) {
 		  my_buffer[i] = salt_before[i];
@@ -268,5 +265,6 @@ func buildGenericKernel(size int) string {
 	  }
 	`
 
-	return strings.ReplaceAll(parametrized, "___SIZE___", strconv.Itoa(size))
+	var s = strings.ReplaceAll(parametrized, "___SIZE___", strconv.Itoa(size))
+	return strings.ReplaceAll(s, "___MAX_WORD_SIZE___", strconv.Itoa(maxWorldSize))
 }
