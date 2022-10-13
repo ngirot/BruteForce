@@ -8,3 +8,8 @@ script:
  - env GOOS=windows GOARCH=amd64 go build -o BruteForce-windows-amd64.exe github.com/ngirot/BruteForce
  - env GOOS=linux GOARCH=arm go build -o BruteForce-linux-arm github.com/ngirot/BruteForce
  - env GOOS=darwin GOARCH=amd64 go build -o BruteForce-macos-amd64 github.com/ngirot/BruteForce
+
+# env GOOS=linux GOARCH=amd64 go build -o BruteForce-linux-amd64 --tags opencl .
+# env GOOS=darwin GOARCH=amd64 go build -o BruteForce-macos-amd64 .
+# env GOOS=linux GOARCH=arm go build -o BruteForce-linux-arm .
+# env GOOS=windows GOARCH=amd64 go build -o BruteForce-windows-amd64.exe --tags opencl .
